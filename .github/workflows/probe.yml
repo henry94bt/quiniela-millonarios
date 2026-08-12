@@ -4,15 +4,24 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: ¿Llega el runner a SELAE?
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm i -g playwright@1.49.0 && npx playwright install --with-deps chromium
+      - name: ¿Pasa un Chromium real?
         run: |
-          echo "--- proximosv3 ---"
-          curl -s -m 30 -w "\nHTTP=%{http_code}\n" \
-            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
-            -H "Accept: application/json, text/plain, */*" \
-            "https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1" | head -c 600
-          echo "--- fechav3 ---"
-          curl -s -m 30 -w "\nHTTP=%{http_code}\n" \
-            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
-            -H "Accept: application/json, text/plain, */*" \
-            "https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816" | head -c 600
+          cat > p.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch();
+          const pg = await b.newPage({ locale: 'es-ES' });
+          for (const u of [
+            'https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1',
+            'https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816',
+          ]) {
+            const r = await pg.goto(u, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            const t = await pg.evaluate(() => document.body.innerText);
+            console.log('STATUS', r.status(), 'LEN', t.length);
+            console.log('HEAD', t.slice(0, 300).replace(/\n/g, ' '));
+          }
+          await b.close();
+          EOF
+          NODE_PATH=$(npm root -g) node p.mjs
