@@ -2,7 +2,7 @@
   "_comentario": "Generado por tools/actualizar-jornada.mjs. No editar a mano salvo el número de jornada o la temporada. Respaldo de boleto.html cuando la hoja aún no tiene cargada la jornada. Ver README, sección 6.",
   "_actualizado": "2026-08-12",
   "temporada": "2026-2027",
-  "jornada": 1,
+  "jornada": 2,
   "partidos": [
     {
       "partido": 1,
@@ -37,7 +37,7 @@
     {
       "partido": 7,
       "local": "Cádiz",
-      "visitante": "Celta B"
+      "visitante": "Celta Fortuna"
     },
     {
       "partido": 8,
