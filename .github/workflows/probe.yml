@@ -1,0 +1,18 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿Llega el runner a SELAE?
+        run: |
+          echo "--- proximosv3 ---"
+          curl -s -m 30 -w "\nHTTP=%{http_code}\n" \
+            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
+            -H "Accept: application/json, text/plain, */*" \
+            "https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1" | head -c 600
+          echo "--- fechav3 ---"
+          curl -s -m 30 -w "\nHTTP=%{http_code}\n" \
+            -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" \
+            -H "Accept: application/json, text/plain, */*" \
+            "https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816" | head -c 600
