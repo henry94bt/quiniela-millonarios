@@ -7,6 +7,7 @@ publicado como CSV.
 - `index.html` — dashboard: clasificación, evolución acumulada, aciertos por jornada,
   sesgo de signo 1/X/2 y el último boleto.
 - `boleto.html` — formulario móvil para rellenar la jornada pendiente y mandarla por WhatsApp.
+- `jornada.json` — los 14 partidos de la jornada en curso (respaldo del boleto). Ver sección 6.
 - `README.md` — esto.
 
 ---
@@ -96,7 +97,43 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
 Los signos a medio rellenar se guardan en el navegador (`localStorage`), así que si
 alguien cierra la página a mitad no pierde lo marcado.
 
-## 6. Detalles técnicos
+## 6. Los partidos de la jornada (`jornada.json`)
+
+`boleto.html` usa la hoja como fuente principal, pero si la hoja todavía no tiene
+cargada la jornada pendiente, tira de **`jornada.json`**, que lleva los 14 partidos
+reales. Así se puede rellenar el boleto en cuanto salen los partidos, sin que nadie
+haya tocado el Sheet.
+
+### Por qué no se actualiza solo
+
+Los partidos oficiales salen de este servicio de SELAE:
+
+```
+https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=AAAAMMDD
+```
+
+Devuelve la jornada, los 15 partidos (14 + Pleno al 15) y, una vez jugada, el `signo`
+de cada uno. Pero está detrás de Akamai y se comprobó que:
+
+- No manda cabeceras CORS → la web **no** puede leerlo desde el navegador del usuario.
+- Rechaza con **403** cualquier cliente que no sea un navegador real (curl, fetch de servidor…).
+- Rechaza con **403** incluso un Chromium real si sale desde una IP de datacenter
+  (probado en GitHub Actions).
+
+O sea: no hay forma de que ni GitHub Pages ni GitHub Actions lo descarguen. Solo pasa
+un navegador de verdad en una conexión doméstica.
+
+### Cómo refrescarlo (30 segundos por jornada)
+
+1. Mira la fecha del próximo sorteo:
+   `https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1`
+2. Abre en el navegador, con esa fecha en formato `AAAAMMDD`:
+   `https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816`
+3. Copia los 14 primeros partidos a `jornada.json` (el 15º es el Pleno al 15) y sube el cambio.
+
+Los nombres vienen con un sufijo ` (m)` que conviene quitar.
+
+## 7. Detalles técnicos
 
 - React 18 + PapaParse + Babel standalone, todo desde cdnjs; los gráficos son SVG
   escritos a mano, sin librería de charts.

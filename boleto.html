@@ -122,25 +122,30 @@ function esc(s) {
   });
 }
 
-/* ---------- demo ---------- */
-function demoJornada() {
-  var teams = [["Betis","Sevilla"],["Valencia","Girona"],["Osasuna","Celta"],["Mallorca","Alavés"],
-               ["Getafe","Rayo"],["Espanyol","Levante"],["Elche","Oviedo"],["Cádiz","Zaragoza"],
-               ["Huesca","Racing"],["Sporting","Eibar"],["Albacete","Burgos"],["Málaga","Córdoba"],
-               ["Tenerife","Lugo"],["Ferrol","Mirandés"]];
-  return {
-    jornada: 9,
-    partidos: teams.map(function (t, i) {
-      return { partido: i + 1, local: t[0], visitante: t[1] };
-    }),
+/* ---------- respaldo: jornada.json del propio repo ----------
+   Si la hoja todavía no tiene cargada la jornada (o CSV_URL no está
+   configurada), tiramos de jornada.json, que lleva los partidos reales.
+   Ver README, sección 7, para actualizarlo. */
+function conRespaldo(motivo) {
+  var req = new XMLHttpRequest();
+  req.open("GET", "jornada.json?v=" + Date.now(), true);
+  req.onload = function () {
+    try {
+      var d = JSON.parse(req.responseText);
+      boot(d.jornada, d.partidos, false,
+           motivo + ". Partidos tomados de jornada.json (temporada " + d.temporada + ").");
+    } catch (e) {
+      boot(0, [], true, motivo + ", y jornada.json no se pudo leer");
+    }
   };
+  req.onerror = function () { boot(0, [], true, motivo + ", y jornada.json no se pudo descargar"); };
+  req.send();
 }
 
 /* ---------- carga ---------- */
 function load() {
   if (isPlaceholder(CSV_URL)) {
-    var d = demoJornada();
-    boot(d.jornada, d.partidos, true, "CSV_URL sin configurar");
+    conRespaldo("CSV_URL sin configurar");
     return;
   }
   Papa.parse(CSV_URL, {
@@ -159,8 +164,7 @@ function load() {
       }).filter(function (r) { return !isNaN(r.jornada) && (r.local || r.visitante); });
 
       if (!rows.length) {
-        var d = demoJornada();
-        boot(d.jornada, d.partidos, true, "El CSV no devolvió filas válidas");
+        conRespaldo("El CSV no devolvió filas válidas");
         return;
       }
 
@@ -174,17 +178,15 @@ function load() {
         var played = jp.filter(function (r) { return r.resultado !== ""; }).length;
         if (played === 0) { pend = keys[i]; break; }
       }
-      var warn = "";
       if (pend === null) {
-        pend = keys[keys.length - 1];
-        warn = "No hay ninguna jornada pendiente en la hoja; mostrando la J" + pend + ".";
+        conRespaldo("La hoja no tiene ninguna jornada pendiente");
+        return;
       }
       var partidos = byJ[pend].slice().sort(function (a, b) { return a.partido - b.partido; });
-      boot(pend, partidos, false, warn);
+      boot(pend, partidos, false, "");
     },
     error: function (err) {
-      var d = demoJornada();
-      boot(d.jornada, d.partidos, true, (err && err.message) || "No se pudo descargar el CSV");
+      conRespaldo((err && err.message) || "No se pudo descargar el CSV");
     },
   });
 }
@@ -217,11 +219,13 @@ function persist() {
 function render() {
   var n = state.partidos.length;
   var done = state.picks.filter(Boolean).length;
+  var completo = n > 0 && done === n;
 
   var html = "";
   html += '<header>';
   html += '<div class="brand">LA <span>QUINIELA</span></div>';
-  html += '<div class="sub">Jornada ' + state.jornada + ' · rellena tus 14 signos</div>';
+  html += '<div class="sub">' + (n ? "Jornada " + state.jornada + " · rellena tus " + n + " signos"
+                                   : "Sin partidos que mostrar") + '</div>';
   html += '</header>';
 
   if (state.demo) {
@@ -252,11 +256,11 @@ function render() {
 
   html += '<div class="dock"><div class="inner">' +
           '<div class="status"><span><b>' + done + '</b> / ' + n + ' signos</span>' +
-          '<span>' + (done === n ? "¡Boleto completo!" : "Faltan " + (n - done)) + '</span></div>' +
+          '<span>' + (completo ? "¡Boleto completo!" : "Faltan " + (n - done)) + '</span></div>' +
           '<div class="barwrap"><div class="barfill" style="width:' + (n ? (done / n) * 100 : 0) + '%"></div></div>' +
           '<div class="actions" style="margin-top:11px">' +
-          '<button class="act" id="copy" ' + (done === n ? "" : "disabled") + '>Copiar signos</button>' +
-          '<button class="act primary" id="wa" ' + (done === n ? "" : "disabled") + '>Enviar por WhatsApp</button>' +
+          '<button class="act" id="copy" ' + (completo ? "" : "disabled") + '>Copiar signos</button>' +
+          '<button class="act primary" id="wa" ' + (completo ? "" : "disabled") + '>Enviar por WhatsApp</button>' +
           '</div></div></div>';
 
   app.innerHTML = html;
