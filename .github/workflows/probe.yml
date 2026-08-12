@@ -4,24 +4,17 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
-        with: { node-version: "20" }
-      - run: npm init -y && npm i playwright@1.49.0 && npx playwright install --with-deps chromium
-      - name: ¿Pasa un Chromium real?
+      - name: Hosts alternativos
         run: |
-          cat > p.mjs <<'EOF'
-          import { chromium } from 'playwright';
-          const b = await chromium.launch();
-          const pg = await b.newPage({ locale: 'es-ES' });
-          for (const u of [
-            'https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1',
-            'https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816',
-          ]) {
-            const r = await pg.goto(u, { waitUntil: 'domcontentloaded', timeout: 45000 });
-            const t = await pg.evaluate(() => document.body.innerText);
-            console.log('STATUS', r.status(), 'LEN', t.length);
-            console.log('HEAD', t.slice(0, 300).replace(/\n/g, ' '));
-          }
-          await b.close();
-          EOF
-          node p.mjs
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+          for u in \
+            "https://api.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1" \
+            "https://servicios.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1" \
+            "https://loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1" \
+            "https://www.loteriasyapuestas.es/es/la-quiniela/resultados" \
+            "https://api.allorigins.win/raw?url=https%3A%2F%2Fwww.loteriasyapuestas.es%2Fservicios%2Fproximosv3%3Fgame_id%3DLAQU%26num%3D1" \
+          ; do
+            code=$(curl -s -m 25 -o /tmp/o -w "%{http_code}" -H "User-Agent: $UA" "$u" || echo TIMEOUT)
+            echo "RESULT $code :: $u"
+            echo "       $(head -c 160 /tmp/o | tr '\n' ' ')"
+          done
