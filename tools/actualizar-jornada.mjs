@@ -69,9 +69,24 @@ function extraerPartidos(html) {
   return { partidos, pleno15 };
 }
 
-const mismos = (a, b) =>
-  a.length === b.length &&
-  a.every((p, i) => p.local === b[i].local && p.visitante === b[i].visitante);
+/* Cuántos de los 14 partidos han cambiado.
+   No basta con comparar nombres exactos: la fuente los retoca de vez en cuando
+   ("Celta B" pasó a "Celta Fortuna" a media tarde) y eso no es una jornada
+   nueva. Una jornada nueva cambia casi los 14 a la vez, así que decidimos por
+   umbral: pocos cambios = mismo cartel con otro nombre. */
+const UMBRAL_JORNADA_NUEVA = 5;
+
+const norm = (s) =>
+  s.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[^a-z0-9]/g, "");
+
+const cuantosCambian = (a, b) =>
+  a.length !== b.length
+    ? Infinity
+    : a.reduce(
+        (n, p, i) =>
+          n + (norm(p.local) !== norm(b[i].local) || norm(p.visitante) !== norm(b[i].visitante) ? 1 : 0),
+        0
+      );
 
 const res = await fetch(URL_FUENTE, {
   headers: { "User-Agent": UA, "Accept-Language": "es-ES,es;q=0.9" },
@@ -82,13 +97,25 @@ const html = decodificar(await res.arrayBuffer());
 const { partidos, pleno15 } = extraerPartidos(html);
 const previo = JSON.parse(readFileSync(DESTINO, "utf8"));
 
-if (!SEED && mismos(partidos, previo.partidos)) {
+const cambios = cuantosCambian(partidos, previo.partidos);
+const jornadaNueva = !SEED && cambios >= UMBRAL_JORNADA_NUEVA;
+
+if (!SEED && cambios === 0) {
   console.log(`Sin cambios: sigue la J${previo.jornada} (${partidos[0].local} – ${partidos[0].visitante}).`);
+  process.exit(0);
+}
+if (!SEED && !jornadaNueva) {
+  // Solo han retocado nombres. Reescribir aquí haría que el bot commiteara
+  // ida y vuelta cada vez que la fuente cambia de nodo de caché, así que
+  // dejamos el fichero como está: el cartel es el mismo.
+  console.log(
+    `${cambios} partido(s) solo con el nombre retocado: sigue la J${previo.jornada}, no toco nada.`
+  );
   process.exit(0);
 }
 
 // El número de jornada de la fuente es su propia numeración, no la de SELAE,
-// así que lo llevamos nosotros: partidos nuevos = jornada siguiente.
+// así que lo llevamos nosotros: cartel nuevo = jornada siguiente.
 // Al empezar temporada hay que poner jornada 0 y temporada nueva a mano.
 const salida = {
   ...previo,
@@ -98,16 +125,15 @@ const salida = {
     "tiene cargada la jornada. Ver README, sección 6.",
   _fuente: URL_FUENTE,
   _actualizado: new Date().toISOString().slice(0, 10),
-  jornada: SEED ? previo.jornada : previo.jornada + 1,
+  jornada: jornadaNueva ? previo.jornada + 1 : previo.jornada,
   partidos,
   pleno15,
 };
 delete salida.fecha_sorteo;
 delete salida.cierre;
 
-console.log(SEED
-  ? `Base fijada en J${salida.jornada} (sin subir jornada).`
-  : `Jornada nueva: J${previo.jornada} → J${salida.jornada}`);
+if (jornadaNueva) console.log(`Jornada nueva: J${previo.jornada} → J${salida.jornada}`);
+else if (SEED) console.log(`Base fijada en J${salida.jornada} (sin subir jornada).`);
 for (const p of partidos) console.log(`  ${String(p.partido).padStart(2)}. ${p.local} – ${p.visitante}`);
 console.log(`  P15. ${pleno15.local} – ${pleno15.visitante}`);
 
