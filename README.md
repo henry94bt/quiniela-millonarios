@@ -7,7 +7,9 @@ publicado como CSV.
 - `index.html` — dashboard: clasificación, evolución acumulada, aciertos por jornada,
   sesgo de signo 1/X/2 y el último boleto.
 - `boleto.html` — formulario móvil para rellenar la jornada pendiente y mandarla por WhatsApp.
-- `jornada.json` — los 14 partidos de la jornada en curso (respaldo del boleto). Ver sección 6.
+- `combinar.html` — las tres apuestas juntas, para pasarlas a TuLotero o a la hoja de una vez.
+- `jornada.json` — los 14 partidos de la jornada en curso. Se actualiza solo. Ver sección 6.
+- `tools/actualizar-jornada.mjs` + `.github/workflows/jornada.yml` — lo que lo actualiza.
 - `README.md` — esto.
 
 ---
@@ -91,8 +93,17 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
 3. Cada jugador pulsa **Copiar signos** (te llegan los 14 en vertical, listos para pegar
    de un tirón en su columna) o **Enviar por WhatsApp**, que manda el resumen legible
    más un código compacto tipo `[J9|Adri|1,X,2,1,1,X,...]`.
-4. Pegas los signos en la hoja. Cuando se juegue la jornada, rellenas `resultado`.
-5. El dashboard se actualiza solo al recargar.
+4. Abres **`combinar.html`** y pegas ahí los mensajes de WhatsApp — puedes pegar la
+   conversación entera de golpe, solo busca los códigos. Te deja las tres apuestas en
+   una tabla, una columna por jugador:
+   - **Copiar para la hoja** te da las 14×3 casillas; se pegan de una vez en la hoja
+     poniéndote en la casilla de `henry` de ese partido 1.
+   - El botón **copiar** de cada cabecera te da esa columna sola, en vertical.
+   - La tabla en pantalla es la vista rápida para ir metiéndolas en **TuLotero**: las
+     filas donde los tres coinciden salen resaltadas.
+   - Cualquier casilla se corrige tocándola (`1 → X → 2 → vacío`).
+5. Cuando se juegue la jornada, rellenas `resultado` en la hoja.
+6. El dashboard se actualiza solo al recargar.
 
 Los signos a medio rellenar se guardan en el navegador (`localStorage`), así que si
 alguien cierra la página a mitad no pierde lo marcado.
@@ -104,7 +115,15 @@ cargada la jornada pendiente, tira de **`jornada.json`**, que lleva los 14 parti
 reales. Así se puede rellenar el boleto en cuanto salen los partidos, sin que nadie
 haya tocado el Sheet.
 
-### Por qué no se actualiza solo
+Lo actualiza solo `.github/workflows/jornada.yml`, dos veces al día, ejecutando
+`tools/actualizar-jornada.mjs`. Solo hace commit si los partidos cambian de verdad.
+Para lanzarlo a mano: pestaña **Actions → Actualizar jornada → Run workflow**, o en local:
+
+```bash
+node tools/actualizar-jornada.mjs --dry-run
+```
+
+### De dónde salen (y por qué no de la fuente oficial)
 
 Los partidos oficiales salen de este servicio de SELAE:
 
@@ -120,18 +139,30 @@ de cada uno. Pero está detrás de Akamai y se comprobó que:
 - Rechaza con **403** incluso un Chromium real si sale desde una IP de datacenter
   (probado en GitHub Actions).
 
-O sea: no hay forma de que ni GitHub Pages ni GitHub Actions lo descarguen. Solo pasa
-un navegador de verdad en una conexión doméstica.
+O sea: ni GitHub Pages ni GitHub Actions pueden descargarlo. Solo pasa un navegador de
+verdad en una conexión doméstica — o sea, tú, abriendo esa URL a mano.
 
-### Cómo refrescarlo (30 segundos por jornada)
+Por eso el script tira de **mundodeportivo.com/servicios/quiniela**, que sí responde
+desde un runner. Se comprobó que publica los mismos 15 partidos y en el mismo orden
+que SELAE.
 
-1. Mira la fecha del próximo sorteo:
-   `https://www.loteriasyapuestas.es/servicios/proximosv3?game_id=LAQU&num=1`
-2. Abre en el navegador, con esa fecha en formato `AAAAMMDD`:
-   `https://www.loteriasyapuestas.es/servicios/fechav3?game_id=LAQU&fecha_sorteo=20260816`
-3. Copia los 14 primeros partidos a `jornada.json` (el 15º es el Pleno al 15) y sube el cambio.
+### Dos cosas que hay que saber
 
-Los nombres vienen con un sufijo ` (m)` que conviene quitar.
+**El número de jornada lo llevamos nosotros.** La fuente usa su propia numeración
+(llamaba "76" a la que SELAE numera como 1 de la temporada 2026-2027), así que el script
+lo lleva por su cuenta: cartel nuevo = jornada + 1. Dos consecuencias:
+
+- Al empezar temporada hay que editar `jornada.json` a mano (`jornada` y `temporada`).
+- Si alguna vez se descuadra, se corrige el número a mano y ya sigue bien.
+
+**Un renombrado no es una jornada nueva.** La fuente alterna nombres según el nodo de
+caché (se la pilló cambiando "Celta B" por "Celta Fortuna" y volviendo). Por eso el
+script cuenta cuántos de los 14 cambian: a partir de 5 lo da por cartel nuevo, y por
+debajo lo trata como un simple renombrado y no toca el fichero.
+
+Si un día la fuente cambia el HTML, el script fallará en voz alta (el workflow sale en
+rojo) en vez de escribir basura, y `jornada.json` se queda como estaba. Para
+arreglarlo, el selector está en una sola línea: `<div class="bg-name">`.
 
 ## 7. Detalles técnicos
 
