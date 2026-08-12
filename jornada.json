@@ -1,25 +1,83 @@
 {
-  "_comentario": "Partidos de la jornada en curso. Sirve de respaldo para boleto.html cuando la hoja aún no tiene la jornada cargada. Fuente: loteriasyapuestas.es (servicios/fechav3). Ver README, sección 7.",
+  "_comentario": "Generado por tools/actualizar-jornada.mjs. No editar a mano salvo el número de jornada o la temporada. Respaldo de boleto.html cuando la hoja aún no tiene cargada la jornada. Ver README, sección 6.",
   "_actualizado": "2026-08-12",
   "temporada": "2026-2027",
   "jornada": 1,
-  "fecha_sorteo": "2026-08-16",
-  "cierre": "2026-08-15 17:00",
   "partidos": [
-    { "partido": 1,  "local": "Alavés",              "visitante": "Getafe",          "fecha": "2026-08-15 19:30" },
-    { "partido": 2,  "local": "Sevilla",             "visitante": "Rayo Vallecano",  "fecha": "2026-08-15 21:30" },
-    { "partido": 3,  "local": "Racing de Santander", "visitante": "Villarreal",      "fecha": "2026-08-16 17:00" },
-    { "partido": 4,  "local": "Espanyol",            "visitante": "Levante",         "fecha": "2026-08-16 19:00" },
-    { "partido": 5,  "local": "Celta",               "visitante": "Osasuna",         "fecha": "2026-08-16 21:30" },
-    { "partido": 6,  "local": "Andorra",             "visitante": "Ceuta",           "fecha": "2026-08-15 17:00" },
-    { "partido": 7,  "local": "Cádiz",               "visitante": "Celta Fortuna",   "fecha": "2026-08-15 19:00" },
-    { "partido": 8,  "local": "R. Oviedo",           "visitante": "Granada",         "fecha": "2026-08-15 19:00" },
-    { "partido": 9,  "local": "Mallorca",            "visitante": "R. Valladolid",   "fecha": "2026-08-15 21:30" },
-    { "partido": 10, "local": "Eibar",               "visitante": "Tenerife",        "fecha": "2026-08-16 17:00" },
-    { "partido": 11, "local": "Burgos",              "visitante": "Córdoba",         "fecha": "2026-08-16 19:00" },
-    { "partido": 12, "local": "Girona",              "visitante": "Leganés",         "fecha": "2026-08-16 19:00" },
-    { "partido": 13, "local": "Las Palmas",          "visitante": "Albacete",        "fecha": "2026-08-16 21:30" },
-    { "partido": 14, "local": "Sporting",            "visitante": "Sabadell",        "fecha": "2026-08-17 19:00" }
+    {
+      "partido": 1,
+      "local": "Alavés",
+      "visitante": "Getafe"
+    },
+    {
+      "partido": 2,
+      "local": "Sevilla",
+      "visitante": "Rayo"
+    },
+    {
+      "partido": 3,
+      "local": "Racing S.",
+      "visitante": "Villarreal"
+    },
+    {
+      "partido": 4,
+      "local": "Espanyol",
+      "visitante": "Levante"
+    },
+    {
+      "partido": 5,
+      "local": "Celta",
+      "visitante": "Osasuna"
+    },
+    {
+      "partido": 6,
+      "local": "Andorra FC",
+      "visitante": "Ceuta"
+    },
+    {
+      "partido": 7,
+      "local": "Cádiz",
+      "visitante": "Celta B"
+    },
+    {
+      "partido": 8,
+      "local": "R.Oviedo",
+      "visitante": "Granada"
+    },
+    {
+      "partido": 9,
+      "local": "Mallorca",
+      "visitante": "Valladolid"
+    },
+    {
+      "partido": 10,
+      "local": "Eibar",
+      "visitante": "Tenerife"
+    },
+    {
+      "partido": 11,
+      "local": "Burgos",
+      "visitante": "Córdoba"
+    },
+    {
+      "partido": 12,
+      "local": "Girona",
+      "visitante": "Leganés"
+    },
+    {
+      "partido": 13,
+      "local": "Las Palmas",
+      "visitante": "Albacete"
+    },
+    {
+      "partido": 14,
+      "local": "Sporting",
+      "visitante": "Sabadell"
+    }
   ],
-  "pleno15": { "local": "Deportivo", "visitante": "Elche", "fecha": "2026-08-17 21:00" }
+  "pleno15": {
+    "local": "Deportivo",
+    "visitante": "Elche"
+  },
+  "_fuente": "https://www.mundodeportivo.com/servicios/quiniela"
 }
