@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Boleto · La Quiniela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0C1512; --panel:#111E1A; --panel-2:#152722; --line:#1F3830;
+    --txt:#E8F2EE; --muted:#7E9990;
+    --s1:#35C46B; --sx:#E9B949; --s2:#4A9DE0;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'Archivo',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 14px 150px}
+
+  header{margin-bottom:16px}
+  .brand{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .brand span{color:var(--s1)}
+  .sub{color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:6px}
+
+  .banner{margin:14px 0;padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.45;
+          background:rgba(233,185,73,.10);border:1px solid rgba(233,185,73,.35);color:var(--sx)}
+  .banner code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#F6D98A}
+
+  .field{margin:14px 0 18px}
+  label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:7px}
+  input[type=text]{
+    width:100%;padding:13px 14px;border-radius:11px;border:1px solid var(--line);
+    background:var(--panel);color:var(--txt);font-size:16px;font-family:inherit;outline:none;
+  }
+  input[type=text]:focus{border-color:var(--s1)}
+
+  .row{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;
+       background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 11px;margin-bottom:8px}
+  .row.done{border-color:rgba(53,196,107,.32)}
+  .idx{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:right}
+  .teams{min-width:0;font-size:14.5px;line-height:1.3}
+  .teams .vs{color:var(--muted);font-size:12px}
+  .btns{display:flex;gap:6px}
+  .sb{
+    width:44px;height:44px;border-radius:11px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--muted);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .08s,background .15s;
+  }
+  .sb:active{transform:scale(.93)}
+  .sb.on{color:#0C1512;border-color:transparent}
+  .sb.on[data-s="1"]{background:var(--s1)}
+  .sb.on[data-s="X"]{background:var(--sx)}
+  .sb.on[data-s="2"]{background:var(--s2)}
+
+  .barwrap{height:6px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:10px}
+  .barfill{height:100%;background:var(--s1);width:0;transition:width .25s}
+
+  .dock{
+    position:fixed;left:0;right:0;bottom:0;background:rgba(12,21,18,.94);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  }
+  .dock .inner{max-width:560px;margin:0 auto}
+  .status{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:9px}
+  .status b{color:var(--txt)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  button.act{
+    padding:14px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel);
+    color:var(--txt);font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;
+  }
+  button.act:disabled{opacity:.4;cursor:not-allowed}
+  button.act.primary:not(:disabled){background:var(--s1);border-color:var(--s1);color:#0C1512}
+  button.act:active:not(:disabled){transform:scale(.98)}
+
+  .loading{padding:70px 0;text-align:center;color:var(--muted);font-size:14px}
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:120px;z-index:20;
+    background:var(--s1);color:#0C1512;font-weight:700;font-size:14px;padding:10px 18px;border-radius:99px;
+    opacity:0;pointer-events:none;transition:opacity .2s
+  }
+  .toast.show{opacity:1}
+  footer{margin-top:22px;font-size:12px;color:var(--muted)}
+  footer a{color:var(--s1);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="loading">Cargando jornada…</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+<script>
+/* ============================================================
+   CONFIG
+   CSV_URL     — Google Sheet publicado como CSV (pestaña "boletos")
+   WHATSAPP_TO — opcional: número con prefijo país y sin +, p.ej. "34600111222".
+                 Si se deja vacío, WhatsApp preguntará a quién enviarlo.
+   ============================================================ */
+var CSV_URL = "PEGA_AQUI_LA_URL_CSV";
+var WHATSAPP_TO = "";
+
+/* ------------------------------------------------------------ */
+
+var SIGNS = ["1", "X", "2"];
+var app = document.getElementById("app");
+var state = { jornada: null, partidos: [], picks: [], nombre: "", demo: false, error: "" };
+
+function isPlaceholder(u) {
+  return !u || !/^https?:\/\//i.test(u) || u.indexOf("PEGA_AQUI") !== -1;
+}
+function normSign(v) {
+  var s = String(v == null ? "" : v).trim().toUpperCase();
+  return (s === "1" || s === "2" || s === "X") ? s : "";
+}
+function normKey(k) {
+  return String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+/* ---------- demo ---------- */
+function demoJornada() {
+  var teams = [["Betis","Sevilla"],["Valencia","Girona"],["Osasuna","Celta"],["Mallorca","Alavés"],
+               ["Getafe","Rayo"],["Espanyol","Levante"],["Elche","Oviedo"],["Cádiz","Zaragoza"],
+               ["Huesca","Racing"],["Sporting","Eibar"],["Albacete","Burgos"],["Málaga","Córdoba"],
+               ["Tenerife","Lugo"],["Ferrol","Mirandés"]];
+  return {
+    jornada: 9,
+    partidos: teams.map(function (t, i) {
+      return { partido: i + 1, local: t[0], visitante: t[1] };
+    }),
+  };
+}
+
+/* ---------- carga ---------- */
+function load() {
+  if (isPlaceholder(CSV_URL)) {
+    var d = demoJornada();
+    boot(d.jornada, d.partidos, true, "CSV_URL sin configurar");
+    return;
+  }
+  Papa.parse(CSV_URL, {
+    download: true, header: true, skipEmptyLines: true,
+    complete: function (res) {
+      var rows = (res.data || []).map(function (r) {
+        var o = {};
+        Object.keys(r).forEach(function (k) { o[normKey(k)] = r[k]; });
+        return {
+          jornada: parseInt(o.jornada, 10),
+          partido: parseInt(o.partido, 10) || 0,
+          local: String(o.local || "").trim(),
+          visitante: String(o.visitante || "").trim(),
+          resultado: normSign(o.resultado),
+        };
+      }).filter(function (r) { return !isNaN(r.jornada) && (r.local || r.visitante); });
+
+      if (!rows.length) {
+        var d = demoJornada();
+        boot(d.jornada, d.partidos, true, "El CSV no devolvió filas válidas");
+        return;
+      }
+
+      // jornada pendiente = la más baja sin ningún resultado; si no hay, la última
+      var byJ = {};
+      rows.forEach(function (r) { (byJ[r.jornada] = byJ[r.jornada] || []).push(r); });
+      var keys = Object.keys(byJ).map(Number).sort(function (a, b) { return a - b; });
+      var pend = null;
+      for (var i = 0; i < keys.length; i++) {
+        var jp = byJ[keys[i]];
+        var played = jp.filter(function (r) { return r.resultado !== ""; }).length;
+        if (played === 0) { pend = keys[i]; break; }
+      }
+      var warn = "";
+      if (pend === null) {
+        pend = keys[keys.length - 1];
+        warn = "No hay ninguna jornada pendiente en la hoja; mostrando la J" + pend + ".";
+      }
+      var partidos = byJ[pend].slice().sort(function (a, b) { return a.partido - b.partido; });
+      boot(pend, partidos, false, warn);
+    },
+    error: function (err) {
+      var d = demoJornada();
+      boot(d.jornada, d.partidos, true, (err && err.message) || "No se pudo descargar el CSV");
+    },
+  });
+}
+
+function storeKey() { return "quiniela:boleto:J" + state.jornada; }
+
+function boot(jornada, partidos, demo, error) {
+  state.jornada = jornada;
+  state.partidos = partidos.slice(0, 14);
+  state.picks = new Array(state.partidos.length).fill("");
+  state.demo = demo;
+  state.error = error || "";
+  try {
+    var saved = JSON.parse(localStorage.getItem(storeKey()) || "null");
+    if (saved && Array.isArray(saved.picks) && saved.picks.length === state.picks.length) {
+      state.picks = saved.picks;
+      state.nombre = saved.nombre || "";
+    }
+  } catch (e) { /* sin persistencia, da igual */ }
+  render();
+}
+
+function persist() {
+  try {
+    localStorage.setItem(storeKey(), JSON.stringify({ picks: state.picks, nombre: state.nombre }));
+  } catch (e) { /* modo privado */ }
+}
+
+/* ---------- render ---------- */
+function render() {
+  var n = state.partidos.length;
+  var done = state.picks.filter(Boolean).length;
+
+  var html = "";
+  html += '<header>';
+  html += '<div class="brand">LA <span>QUINIELA</span></div>';
+  html += '<div class="sub">Jornada ' + state.jornada + ' · rellena tus 14 signos</div>';
+  html += '</header>';
+
+  if (state.demo) {
+    html += '<div class="banner"><b>Datos de demostración.</b> ' + esc(state.error) +
+            '. Edita <code>CSV_URL</code> en <code>boleto.html</code>.</div>';
+  } else if (state.error) {
+    html += '<div class="banner">' + esc(state.error) + '</div>';
+  }
+
+  html += '<div class="field"><label for="nombre">Tu nombre</label>' +
+          '<input type="text" id="nombre" placeholder="Henry, Pedro, Adri…" autocomplete="name" value="' +
+          esc(state.nombre) + '" /></div>';
+
+  state.partidos.forEach(function (p, i) {
+    var sel = state.picks[i];
+    html += '<div class="row' + (sel ? " done" : "") + '">' +
+            '<div class="idx">' + (p.partido || i + 1) + '</div>' +
+            '<div class="teams">' + esc(p.local) + ' <span class="vs">–</span> ' + esc(p.visitante) + '</div>' +
+            '<div class="btns">' +
+            SIGNS.map(function (s) {
+              return '<button class="sb' + (sel === s ? " on" : "") + '" data-s="' + s +
+                     '" data-i="' + i + '" type="button" aria-pressed="' + (sel === s) + '">' + s + '</button>';
+            }).join("") +
+            '</div></div>';
+  });
+
+  html += '<footer><a href="index.html">← Ver el dashboard</a></footer>';
+
+  html += '<div class="dock"><div class="inner">' +
+          '<div class="status"><span><b>' + done + '</b> / ' + n + ' signos</span>' +
+          '<span>' + (done === n ? "¡Boleto completo!" : "Faltan " + (n - done)) + '</span></div>' +
+          '<div class="barwrap"><div class="barfill" style="width:' + (n ? (done / n) * 100 : 0) + '%"></div></div>' +
+          '<div class="actions" style="margin-top:11px">' +
+          '<button class="act" id="copy" ' + (done === n ? "" : "disabled") + '>Copiar signos</button>' +
+          '<button class="act primary" id="wa" ' + (done === n ? "" : "disabled") + '>Enviar por WhatsApp</button>' +
+          '</div></div></div>';
+
+  app.innerHTML = html;
+
+  var input = document.getElementById("nombre");
+  input.addEventListener("input", function () { state.nombre = input.value; persist(); });
+
+  Array.prototype.forEach.call(app.querySelectorAll(".sb"), function (b) {
+    b.addEventListener("click", function () {
+      var i = +b.dataset.i, s = b.dataset.s;
+      state.picks[i] = state.picks[i] === s ? "" : s;   // volver a pulsar deselecciona
+      persist();
+      render();
+    });
+  });
+
+  var copy = document.getElementById("copy");
+  if (copy) copy.addEventListener("click", onCopy);
+  var wa = document.getElementById("wa");
+  if (wa) wa.addEventListener("click", onWhatsApp);
+}
+
+/* ---------- acciones ---------- */
+function signosVertical() { return state.picks.join("\n"); }
+
+function codigo() {
+  return "[J" + state.jornada + "|" + (state.nombre.trim() || "sin nombre") + "|" + state.picks.join(",") + "]";
+}
+
+function resumen() {
+  var lines = state.partidos.map(function (p, i) {
+    return (p.partido || i + 1) + ". " + p.local + " - " + p.visitante + ": " + state.picks[i];
+  });
+  return "Quiniela J" + state.jornada + " · " + (state.nombre.trim() || "sin nombre") + "\n\n" +
+         lines.join("\n") + "\n\n" + codigo();
+}
+
+function onCopy() {
+  var text = signosVertical();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { toast("14 signos copiados"); }, function () { fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  var ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  toast(ok ? "14 signos copiados" : "Copia manual: " + text.replace(/\n/g, " "));
+}
+
+function onWhatsApp() {
+  var base = WHATSAPP_TO ? "https://wa.me/" + WHATSAPP_TO.replace(/[^0-9]/g, "") : "https://wa.me/";
+  window.open(base + "?text=" + encodeURIComponent(resumen()), "_blank");
+}
+
+var toastEl = document.getElementById("toast"), toastT = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(function () { toastEl.classList.remove("show"); }, 2200);
+}
+
+load();
+</script>
+</body>
+</html>

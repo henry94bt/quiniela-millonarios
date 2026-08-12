@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>La Quiniela · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0C1512;
+    --panel:#111E1A;
+    --panel-2:#152722;
+    --line:#1F3830;
+    --txt:#E8F2EE;
+    --muted:#7E9990;
+    --s1:#35C46B;   /* 1 */
+    --sx:#E9B949;   /* X */
+    --s2:#4A9DE0;   /* 2 */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Archivo',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 18px 72px}
+
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;margin-bottom:8px}
+  .brand{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1}
+  .brand span{color:var(--s1)}
+  .sub{color:var(--muted);font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+
+  .banner{
+    margin:16px 0 0;padding:11px 14px;border-radius:10px;
+    background:rgba(233,185,73,.10);border:1px solid rgba(233,185,73,.35);
+    color:var(--sx);font-size:13.5px;line-height:1.45;
+  }
+  .banner code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#F6D98A}
+
+  .grid{display:grid;gap:14px}
+  .cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:22px}
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  }
+  .card.rank{position:relative;overflow:hidden}
+  .card.rank::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .rank .pos{font-size:11px;letter-spacing:.16em;color:var(--muted);font-weight:700;text-transform:uppercase}
+  .rank .who{font-size:22px;font-weight:700;margin:2px 0 10px;display:flex;align-items:center;gap:9px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+  .rank .big{font-size:38px;font-weight:800;line-height:1;letter-spacing:-.02em}
+  .rank .big small{font-size:14px;color:var(--muted);font-weight:600;margin-left:6px;letter-spacing:0}
+  .metaline{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+  .metaline b{color:var(--txt);font-weight:600}
+
+  section{margin-top:30px}
+  h2{font-size:14px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:6px;font-size:12.5px;color:var(--muted)}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:7px;vertical-align:-1px}
+
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .gridline{stroke:var(--line);stroke-width:1}
+  .axis{fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px}
+
+  .bias{display:grid;gap:14px}
+  .biasrow{display:grid;grid-template-columns:78px 1fr;align-items:center;gap:14px}
+  .biasrow .nm{font-weight:600;font-size:14px}
+  .bar{display:flex;height:34px;border-radius:8px;overflow:hidden;background:var(--panel-2)}
+  .seg{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;
+       font-size:12px;font-weight:700;color:#0C1512;min-width:0;transition:flex-grow .3s}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+     font-weight:700;padding:0 8px 10px;border-bottom:1px solid var(--line)}
+  td{padding:9px 8px;border-bottom:1px solid rgba(31,56,48,.55)}
+  tr:last-child td{border-bottom:none}
+  .num{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:12px;width:28px}
+  .match{font-weight:500}
+  .match em{font-style:normal;color:var(--muted)}
+  .sign{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+        font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:#0C1512}
+  .pick{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;
+        font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;
+        border:1px solid var(--line);color:var(--muted);background:var(--panel-2)}
+  .pick.hit{background:rgba(53,196,107,.16);border-color:rgba(53,196,107,.5);color:var(--s1)}
+  .pick.miss{opacity:.45;text-decoration:line-through}
+  .center{text-align:center}
+  .tot{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
+
+  .loading{padding:60px 0;text-align:center;color:var(--muted);font-size:14px}
+  footer{margin-top:44px;color:var(--muted);font-size:12px;display:flex;gap:14px;flex-wrap:wrap}
+  footer a{color:var(--s1);text-decoration:none}
+  @media (max-width:560px){
+    .wrap{padding:18px 13px 56px}
+    .biasrow{grid-template-columns:64px 1fr;gap:10px}
+    td,th{padding-left:5px;padding-right:5px}
+  }
+</style>
+</head>
+<body>
+<div id="root"><div class="wrap"><div class="loading">Cargando quiniela…</div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="react">
+/* ============================================================
+   CONFIG — pega aquí la URL del Google Sheet publicado como CSV
+   (pestaña "boletos"). Ver README.md
+   ============================================================ */
+const CSV_URL = "PEGA_AQUI_LA_URL_CSV";
+
+/* ------------------------------------------------------------ */
+
+const PLAYERS = [
+  { key: "henry", name: "Henry", color: "#35C46B" },
+  { key: "pedro", name: "Pedro", color: "#E9B949" },
+  { key: "adri",  name: "Adri",  color: "#4A9DE0" },
+];
+const SIGNS = ["1", "X", "2"];
+const SIGN_COLOR = { "1": "#35C46B", "X": "#E9B949", "2": "#4A9DE0" };
+
+const isPlaceholder = (u) => !u || !/^https?:\/\//i.test(u) || u.indexOf("PEGA_AQUI") !== -1;
+
+const normSign = (v) => {
+  const s = String(v == null ? "" : v).trim().toUpperCase();
+  if (s === "1" || s === "2") return s;
+  if (s === "X") return "X";
+  return "";
+};
+const normKey = (k) =>
+  String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/* ---------- datos demo ---------- */
+function demoRows() {
+  // PRNG determinista para que la demo sea siempre igual
+  let seed = 20260812;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  const teams = ["Betis","Sevilla","Valencia","Girona","Osasuna","Celta","Mallorca","Alavés",
+                 "Getafe","Rayo","Espanyol","Levante","Elche","Oviedo","Cádiz","Zaragoza",
+                 "Huesca","Racing","Sporting","Eibar","Albacete","Burgos","Málaga","Córdoba",
+                 "Tenerife","Lugo","Ferrol","Mirandés"];   // 28 = 14 partidos sin repetir
+  const rows = [];
+  const JORNADAS = 9;               // la última queda sin resultados (pendiente)
+  for (let j = 1; j <= JORNADAS; j++) {
+    const pending = j === JORNADAS;
+    const pool = teams.slice().sort(() => rnd() - 0.5);
+    for (let p = 1; p <= 14; p++) {
+      const r = rnd();
+      const res = r < 0.46 ? "1" : r < 0.73 ? "X" : "2";
+      const pick = (skill) => {
+        if (rnd() < skill) return res;
+        const other = SIGNS.filter((s) => s !== res);
+        return other[rnd() < 0.55 ? 0 : 1];
+      };
+      rows.push({
+        temporada: "2025/26",
+        jornada: j,
+        partido: p,
+        local: pool[(p * 2 - 2) % pool.length],
+        visitante: pool[(p * 2 - 1) % pool.length],
+        resultado: pending ? "" : res,
+        henry: pending ? "" : pick(0.53),
+        pedro: pending ? "" : pick(0.47),
+        adri:  pending ? "" : pick(0.50),
+      });
+    }
+  }
+  return rows;
+}
+
+/* ---------- parseo del CSV ---------- */
+function parseRows(raw) {
+  return raw
+    .map((r) => {
+      const o = {};
+      Object.keys(r).forEach((k) => { o[normKey(k)] = r[k]; });
+      return {
+        temporada: String(o.temporada || "").trim(),
+        jornada: parseInt(o.jornada, 10),
+        partido: parseInt(o.partido, 10) || 0,
+        local: String(o.local || "").trim(),
+        visitante: String(o.visitante || "").trim(),
+        resultado: normSign(o.resultado),
+        henry: normSign(o.henry),
+        pedro: normSign(o.pedro),
+        adri: normSign(o.adri),
+      };
+    })
+    .filter((r) => !isNaN(r.jornada) && (r.local || r.visitante || r.resultado));
+}
+
+/* ---------- agregación ---------- */
+function buildStats(rows) {
+  const byJornada = new Map();
+  rows.forEach((r) => {
+    if (!byJornada.has(r.jornada)) byJornada.set(r.jornada, []);
+    byJornada.get(r.jornada).push(r);
+  });
+
+  const jornadas = [...byJornada.keys()].sort((a, b) => a - b).map((j) => {
+    const partidos = byJornada.get(j).slice().sort((a, b) => a.partido - b.partido);
+    const played = partidos.filter((p) => p.resultado !== "");
+    const scores = {};
+    PLAYERS.forEach((pl) => {
+      scores[pl.key] = played.filter((p) => p[pl.key] && p[pl.key] === p.resultado).length;
+    });
+    return {
+      jornada: j,
+      temporada: partidos[0] ? partidos[0].temporada : "",
+      partidos,
+      played: played.length > 0,
+      nPlayed: played.length,
+      scores,
+    };
+  });
+
+  const jugadas = jornadas.filter((j) => j.played);
+
+  const table = PLAYERS.map((pl) => {
+    let aciertos = 0, posibles = 0, best = null;
+    jugadas.forEach((j) => {
+      aciertos += j.scores[pl.key];
+      posibles += j.nPlayed;
+      if (best === null || j.scores[pl.key] > best.n) best = { n: j.scores[pl.key], jornada: j.jornada };
+    });
+    const bias = { "1": 0, "X": 0, "2": 0 };
+    let picks = 0;
+    jugadas.forEach((j) => j.partidos.forEach((p) => {
+      if (p[pl.key]) { bias[p[pl.key]]++; picks++; }
+    }));
+    return {
+      ...pl,
+      aciertos,
+      posibles,
+      pct: posibles ? (aciertos / posibles) * 100 : 0,
+      best: best || { n: 0, jornada: "–" },
+      bias,
+      picks,
+      media: jugadas.length ? aciertos / jugadas.length : 0,
+    };
+  }).sort((a, b) => b.aciertos - a.aciertos || b.pct - a.pct);
+
+  // sesgo real de los resultados, como referencia
+  const realBias = { "1": 0, "X": 0, "2": 0 };
+  let realN = 0;
+  jugadas.forEach((j) => j.partidos.forEach((p) => {
+    if (p.resultado) { realBias[p.resultado]++; realN++; }
+  }));
+
+  // evolución acumulada
+  const cumul = {};
+  PLAYERS.forEach((pl) => {
+    let acc = 0;
+    cumul[pl.key] = jugadas.map((j) => (acc += j.scores[pl.key]));
+  });
+
+  const pendiente = jornadas.find((j) => !j.played) || null;
+  const ultimo = jugadas.length ? jugadas[jugadas.length - 1] : null;
+  const temporada = (ultimo && ultimo.temporada) || (jornadas[0] && jornadas[0].temporada) || "";
+
+  return { jornadas, jugadas, table, realBias, realN, cumul, pendiente, ultimo, temporada };
+}
+
+/* ============================ CHARTS (SVG a mano) ============================ */
+
+function LineChart({ labels, series, maxHint }) {
+  const W = 720, H = 300, PL = 44, PR = 16, PT = 14, PB = 34;
+  const n = labels.length;
+  if (n === 0) return <Empty />;
+  const maxV = Math.max(maxHint || 0, ...series.map((s) => Math.max(...s.values, 0)), 1);
+  const step = niceStep(maxV);
+  const top = Math.ceil(maxV / step) * step;
+  const x = (i) => (n === 1 ? PL + (W - PL - PR) / 2 : PL + (i * (W - PL - PR)) / (n - 1));
+  const y = (v) => H - PB - (v / top) * (H - PT - PB);
+  const ticks = [];
+  for (let v = 0; v <= top + 0.001; v += step) ticks.push(v);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Evolución acumulada de aciertos">
+      {ticks.map((t) => (
+        <g key={t}>
+          <line className="gridline" x1={PL} x2={W - PR} y1={y(t)} y2={y(t)} />
+          <text className="axis" x={PL - 10} y={y(t) + 4} textAnchor="end">{t}</text>
+        </g>
+      ))}
+      {labels.map((l, i) => (
+        (n <= 14 || i % Math.ceil(n / 14) === 0 || i === n - 1) &&
+        <text key={i} className="axis" x={x(i)} y={H - PB + 20} textAnchor="middle">J{l}</text>
+      ))}
+      {series.map((s) => (
+        <g key={s.name}>
+          <path
+            d={s.values.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ")}
+            fill="none" stroke={s.color} strokeWidth="2.5"
+            strokeLinejoin="round" strokeLinecap="round"
+          />
+          {s.values.map((v, i) => (
+            <circle key={i} cx={x(i)} cy={y(v)} r={n > 20 ? 2 : 3.5} fill="#0C1512" stroke={s.color} strokeWidth="2" />
+          ))}
+          {n > 0 && (
+            <text className="axis" x={x(n - 1) + 8} y={y(s.values[n - 1]) + 4} fill={s.color} style={{ fontWeight: 700 }}>
+              {s.values[n - 1]}
+            </text>
+          )}
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function GroupedBars({ labels, series }) {
+  const W = 720, H = 260, PL = 34, PR = 12, PT = 12, PB = 30;
+  const n = labels.length;
+  if (n === 0) return <Empty />;
+  const maxV = Math.max(...series.map((s) => Math.max(...s.values, 0)), 1);
+  const step = niceStep(maxV);
+  const top = Math.ceil(maxV / step) * step;
+  const y = (v) => H - PB - (v / top) * (H - PT - PB);
+  const bandW = (W - PL - PR) / n;
+  const gap = Math.min(6, bandW * 0.08);
+  const barW = Math.max(2, (bandW - gap * 2) / series.length - 2);
+  const ticks = [];
+  for (let v = 0; v <= top + 0.001; v += step) ticks.push(v);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Aciertos por jornada">
+      {ticks.map((t) => (
+        <g key={t}>
+          <line className="gridline" x1={PL} x2={W - PR} y1={y(t)} y2={y(t)} />
+          <text className="axis" x={PL - 9} y={y(t) + 4} textAnchor="end">{t}</text>
+        </g>
+      ))}
+      {labels.map((l, i) => {
+        const bx = PL + i * bandW + gap;
+        return (
+          <g key={i}>
+            {series.map((s, si) => {
+              const v = s.values[i] || 0;
+              const h = Math.max(0, H - PB - y(v));
+              return (
+                <rect key={s.name} x={bx + si * (barW + 2)} y={y(v)} width={barW} height={h}
+                      rx={Math.min(3, barW / 2)} fill={s.color} opacity="0.9" />
+              );
+            })}
+            {(n <= 14 || i % Math.ceil(n / 14) === 0 || i === n - 1) &&
+              <text className="axis" x={PL + i * bandW + bandW / 2} y={H - PB + 18} textAnchor="middle">J{l}</text>}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function niceStep(max) {
+  const raw = max / 5;
+  const pow = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+  const c = raw / pow;
+  const m = c <= 1 ? 1 : c <= 2 ? 2 : c <= 5 ? 5 : 10;
+  return Math.max(1, m * pow);
+}
+
+const Empty = () => <div style={{ color: "#7E9990", fontSize: 13, padding: "26px 0" }}>Sin datos todavía.</div>;
+
+/* ============================ UI ============================ */
+
+function RankCard({ p, i }) {
+  const pos = ["Líder", "2º", "3º"][i] || `${i + 1}º`;
+  return (
+    <div className="card rank" style={{ "--accent": p.color }}>
+      <div className="pos">{pos}</div>
+      <div className="who"><span className="dot" style={{ background: p.color }} />{p.name}</div>
+      <div className="big mono">{p.aciertos}<small>/ {p.posibles} aciertos</small></div>
+      <div className="metaline">
+        <span>Acierto <b className="mono">{p.pct.toFixed(1)}%</b></span>
+        <span>Media <b className="mono">{p.media.toFixed(1)}</b></span>
+        <span>Mejor <b className="mono">{p.best.n} (J{p.best.jornada})</b></span>
+      </div>
+    </div>
+  );
+}
+
+function BiasBar({ label, dist, total }) {
+  return (
+    <div className="biasrow">
+      <div className="nm">{label}</div>
+      <div className="bar">
+        {SIGNS.map((s) => {
+          const pct = total ? (dist[s] / total) * 100 : 0;
+          return (
+            <div key={s} className="seg"
+                 style={{ flexGrow: pct, background: SIGN_COLOR[s], opacity: pct ? 1 : 0 }}
+                 title={`${s}: ${dist[s]} (${pct.toFixed(1)}%)`}>
+              {pct >= 9 ? `${s} ${pct.toFixed(0)}%` : ""}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LastTicket({ j }) {
+  if (!j) return <Empty />;
+  return (
+    <div className="panel">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Partido</th>
+            <th className="center">Res</th>
+            {PLAYERS.map((p) => <th key={p.key} className="center">{p.name}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {j.partidos.map((p, i) => (
+            <tr key={i}>
+              <td className="num">{p.partido || i + 1}</td>
+              <td className="match">{p.local} <em>–</em> {p.visitante}</td>
+              <td className="center">
+                {p.resultado
+                  ? <span className="sign" style={{ background: SIGN_COLOR[p.resultado] }}>{p.resultado}</span>
+                  : <span className="pick">·</span>}
+              </td>
+              {PLAYERS.map((pl) => {
+                const v = p[pl.key];
+                const cls = !v ? "pick" : v === p.resultado ? "pick hit" : "pick miss";
+                return <td key={pl.key} className="center"><span className={cls}>{v || "·"}</span></td>;
+              })}
+            </tr>
+          ))}
+          <tr>
+            <td></td>
+            <td className="tot">TOTAL</td>
+            <td></td>
+            {PLAYERS.map((pl) => (
+              <td key={pl.key} className="center">
+                <span className="sign" style={{ background: pl.color }}>{j.scores[pl.key]}</span>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Legend({ items }) {
+  return (
+    <div className="legend">
+      {items.map((it) => (
+        <span key={it.label}><i style={{ background: it.color }} />{it.label}</span>
+      ))}
+    </div>
+  );
+}
+
+function App() {
+  const [state, setState] = React.useState({ status: "loading", rows: [], demo: false, error: "" });
+
+  React.useEffect(() => {
+    if (isPlaceholder(CSV_URL)) {
+      setState({ status: "ready", rows: demoRows(), demo: true, error: "CSV_URL sin configurar" });
+      return;
+    }
+    Papa.parse(CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (res) => {
+        const rows = parseRows(res.data || []);
+        if (!rows.length) {
+          setState({ status: "ready", rows: demoRows(), demo: true, error: "El CSV no devolvió filas válidas" });
+        } else {
+          setState({ status: "ready", rows, demo: false, error: "" });
+        }
+      },
+      error: (err) => {
+        setState({ status: "ready", rows: demoRows(), demo: true, error: (err && err.message) || "No se pudo descargar el CSV" });
+      },
+    });
+  }, []);
+
+  if (state.status === "loading") {
+    return <div className="wrap"><div className="loading">Cargando quiniela…</div></div>;
+  }
+
+  const st = buildStats(state.rows);
+  const labels = st.jugadas.map((j) => j.jornada);
+  const cumulSeries = PLAYERS.map((p) => ({ name: p.name, color: p.color, values: st.cumul[p.key] }));
+  const perJornada = PLAYERS.map((p) => ({
+    name: p.name, color: p.color, values: st.jugadas.map((j) => j.scores[p.key]),
+  }));
+  const legend = PLAYERS.map((p) => ({ label: p.name, color: p.color }));
+
+  return (
+    <div className="wrap">
+      <header className="top">
+        <div className="brand">LA <span>QUINIELA</span></div>
+        <div className="sub">
+          {st.temporada ? st.temporada + " · " : ""}
+          {st.jugadas.length} jornada{st.jugadas.length === 1 ? "" : "s"} jugada{st.jugadas.length === 1 ? "" : "s"}
+          {st.pendiente ? ` · J${st.pendiente.jornada} pendiente` : ""}
+        </div>
+      </header>
+
+      {state.demo && (
+        <div className="banner">
+          <b>Datos de demostración.</b> {state.error}. Edita la constante <code>CSV_URL</code> en <code>index.html</code>
+          {" "}con la URL del Google Sheet publicado como CSV (pestaña <code>boletos</code>).
+        </div>
+      )}
+
+      <div className="grid cards">
+        {st.table.map((p, i) => <RankCard key={p.key} p={p} i={i} />)}
+      </div>
+
+      <section>
+        <h2>Evolución acumulada</h2>
+        <div className="panel">
+          <Legend items={legend} />
+          <LineChart labels={labels} series={cumulSeries} />
+        </div>
+      </section>
+
+      <section>
+        <h2>Aciertos por jornada</h2>
+        <div className="panel">
+          <Legend items={legend} />
+          <GroupedBars labels={labels} series={perJornada} />
+        </div>
+      </section>
+
+      <section>
+        <h2>Sesgo de signo</h2>
+        <div className="panel">
+          <Legend items={SIGNS.map((s) => ({ label: s === "1" ? "1 · local" : s === "X" ? "X · empate" : "2 · visitante", color: SIGN_COLOR[s] }))} />
+          <div className="bias" style={{ marginTop: 12 }}>
+            {st.table.map((p) => <BiasBar key={p.key} label={p.name} dist={p.bias} total={p.picks} />)}
+            <div style={{ height: 1, background: "var(--line)", margin: "2px 0" }} />
+            <BiasBar label="Real" dist={st.realBias} total={st.realN} />
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Último boleto {st.ultimo ? `· J${st.ultimo.jornada}` : ""}</h2>
+        <LastTicket j={st.ultimo} />
+      </section>
+
+      <footer>
+        <a href="boleto.html">→ Rellenar boleto de la jornada</a>
+        <span>Henry · Pedro · Adri</span>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
