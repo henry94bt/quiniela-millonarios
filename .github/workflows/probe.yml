@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - run: npm i -g playwright@1.49.0 && npx playwright install --with-deps chromium
+      - run: npm init -y && npm i playwright@1.49.0 && npx playwright install --with-deps chromium
       - name: ¿Pasa un Chromium real?
         run: |
           cat > p.mjs <<'EOF'
@@ -24,4 +24,4 @@ jobs:
           }
           await b.close();
           EOF
-          NODE_PATH=$(npm root -g) node p.mjs
+          node p.mjs
