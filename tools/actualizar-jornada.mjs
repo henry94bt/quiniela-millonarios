@@ -13,10 +13,11 @@
  *              mano el número de jornada y volver a sincronizar.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 const URL_FUENTE = "https://www.mundodeportivo.com/servicios/quiniela";
 const DESTINO = new URL("../jornada.json", import.meta.url);
+const HISTORICO = new URL("../historico.json", import.meta.url);
 const DRY = process.argv.includes("--dry-run");
 const SEED = process.argv.includes("--seed");
 
@@ -100,19 +101,24 @@ const previo = JSON.parse(readFileSync(DESTINO, "utf8"));
 const cambios = cuantosCambian(partidos, previo.partidos);
 const jornadaNueva = !SEED && cambios >= UMBRAL_JORNADA_NUEVA;
 
+// Nada de process.exit() aquí: con la conexión aún cerrándose, Node aborta con
+// "UV_HANDLE_CLOSING" y devuelve un código de error que pondría el workflow en
+// rojo sin haber pasado nada. Se sale dejando que el módulo termine solo.
+const sinTocarNada =
+  !SEED && (cambios === 0 || !jornadaNueva);
+
 if (!SEED && cambios === 0) {
   console.log(`Sin cambios: sigue la J${previo.jornada} (${partidos[0].local} – ${partidos[0].visitante}).`);
-  process.exit(0);
-}
-if (!SEED && !jornadaNueva) {
+} else if (!SEED && !jornadaNueva) {
   // Solo han retocado nombres. Reescribir aquí haría que el bot commiteara
   // ida y vuelta cada vez que la fuente cambia de nodo de caché, así que
   // dejamos el fichero como está: el cartel es el mismo.
   console.log(
     `${cambios} partido(s) solo con el nombre retocado: sigue la J${previo.jornada}, no toco nada.`
   );
-  process.exit(0);
 }
+
+if (!sinTocarNada) {
 
 // El número de jornada de la fuente es su propia numeración, no la de SELAE,
 // así que lo llevamos nosotros: cartel nuevo = jornada siguiente.
@@ -137,9 +143,35 @@ else if (SEED) console.log(`Base fijada en J${salida.jornada} (sin subir jornada
 for (const p of partidos) console.log(`  ${String(p.partido).padStart(2)}. ${p.local} – ${p.visitante}`);
 console.log(`  P15. ${pleno15.local} – ${pleno15.visitante}`);
 
+/* Al cambiar de jornada guardamos la que se va en historico.json. Sin esto, el
+   dashboard se queda sin los nombres de los equipos de las jornadas pasadas:
+   los signos viven en la hoja, pero los carteles solo están aquí. */
+function archivar() {
+  const hist = existsSync(HISTORICO) ? JSON.parse(readFileSync(HISTORICO, "utf8")) : [];
+  if (hist.some((h) => h.jornada === previo.jornada && h.temporada === previo.temporada)) {
+    return hist.length;
+  }
+  hist.push({
+    temporada: previo.temporada,
+    jornada: previo.jornada,
+    partidos: previo.partidos,
+    pleno15: previo.pleno15,
+  });
+  hist.sort((a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada);
+  if (!DRY) writeFileSync(HISTORICO, JSON.stringify(hist, null, 2) + "\n");
+  return hist.length;
+}
+
 if (DRY) {
-  console.log("\n--dry-run: no se ha escrito nada.");
+  if (jornadaNueva) console.log(`\nArchivaría la J${previo.jornada} en historico.json.`);
+  console.log("--dry-run: no se ha escrito nada.");
 } else {
+  if (jornadaNueva) {
+    const n = archivar();
+    console.log(`\nJ${previo.jornada} archivada en historico.json (${n} jornadas guardadas).`);
+  }
   writeFileSync(DESTINO, JSON.stringify(salida, null, 2) + "\n");
-  console.log("\njornada.json actualizado.");
+  console.log("jornada.json actualizado.");
+}
+
 }

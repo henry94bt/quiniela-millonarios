@@ -119,6 +119,14 @@
    ============================================================ */
 const CSV_URL = "PEGA_AQUI_LA_URL_CSV";
 
+/* CSV de la pestaña de respuestas del Google Form (jornada, nombre, signos).
+   Es la forma recomendada: las apuestas se van acumulando ahí solas según las
+   manda cada uno, y el dashboard las lee todas. El resultado de la jornada se
+   mete por el mismo formulario poniendo "Resultado" en el nombre.
+   Si se deja vacío, se sigue leyendo CSV_URL con el formato antiguo (una fila
+   por partido). Ver README, sección 4. */
+const CSV_APUESTAS = "";
+
 /* ------------------------------------------------------------ */
 
 const PLAYERS = [
@@ -176,6 +184,74 @@ function demoRows() {
     }
   }
   return rows;
+}
+
+/* ---------- carteles: jornada.json + historico.json ----------
+   Los signos viven en la hoja, pero los nombres de los equipos solo están
+   aquí, así que hacen falta los dos para pintar los boletos de jornadas
+   pasadas. Si falta alguno, se numeran los partidos y ya. */
+function cargarCarteles() {
+  const pedir = (u) =>
+    fetch(u + "?v=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  return Promise.all([pedir("jornada.json"), pedir("historico.json")]).then(([act, hist]) => {
+    const mapa = new Map();
+    (Array.isArray(hist) ? hist : []).forEach((h) => {
+      mapa.set(h.jornada, { temporada: h.temporada, partidos: h.partidos || [] });
+    });
+    if (act) mapa.set(act.jornada, { temporada: act.temporada, partidos: act.partidos || [] });
+    return mapa;
+  });
+}
+
+/* ---------- respuestas del formulario -> filas por partido ----------
+   El formulario guarda una fila por apuesta (jornada, nombre, signos). Aquí
+   se despliega a una fila por partido, que es lo que ya sabe digerir el
+   resto del dashboard. */
+function filasDesdeRespuestas(data, carteles) {
+  const porJornada = new Map();
+
+  data.forEach((r) => {
+    const o = {};
+    Object.keys(r).forEach((k) => { o[normKey(k)] = r[k]; });
+    const jornada = parseInt(o.jornada, 10);
+    if (isNaN(jornada)) return;
+    const signos = String(o.signos || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
+    if (!signos.length) return;
+
+    const nombre = String(o.nombre || "").trim().toLowerCase();
+    const esResultado = /resultad|oficial|quiniela/.test(nombre);
+    const jugador = PLAYERS.filter(
+      (p) => nombre.indexOf(p.key) !== -1 || p.key.indexOf(nombre) !== -1
+    )[0];
+    if (!esResultado && !jugador) return;
+
+    if (!porJornada.has(jornada)) porJornada.set(jornada, { picks: {}, resultado: null, n: 0 });
+    const j = porJornada.get(jornada);
+    // el formulario va añadiendo filas: la última de cada uno es la buena
+    if (esResultado) j.resultado = signos;
+    else j.picks[jugador.key] = signos;
+    j.n = Math.max(j.n, signos.length);
+  });
+
+  const filas = [];
+  [...porJornada.keys()].sort((a, b) => a - b).forEach((jornada) => {
+    const j = porJornada.get(jornada);
+    const cartel = carteles.get(jornada) || { temporada: "", partidos: [] };
+    for (let i = 0; i < j.n; i++) {
+      const p = cartel.partidos[i] || {};
+      const fila = {
+        temporada: cartel.temporada || "",
+        jornada,
+        partido: i + 1,
+        local: p.local || "Partido " + (i + 1),
+        visitante: p.visitante || "",
+        resultado: (j.resultado && j.resultado[i]) || "",
+      };
+      PLAYERS.forEach((pl) => { fila[pl.key] = (j.picks[pl.key] && j.picks[pl.key][i]) || ""; });
+      filas.push(fila);
+    }
+  });
+  return filas;
 }
 
 /* ---------- parseo del CSV ---------- */
@@ -426,7 +502,9 @@ function LastTicket({ j }) {
           {j.partidos.map((p, i) => (
             <tr key={i}>
               <td className="num">{p.partido || i + 1}</td>
-              <td className="match">{p.local} <em>–</em> {p.visitante}</td>
+              <td className="match">
+                {p.local}{p.visitante ? <> <em>–</em> {p.visitante}</> : null}
+              </td>
               <td className="center">
                 {p.resultado
                   ? <span className="sign" style={{ background: SIGN_COLOR[p.resultado] }}>{p.resultado}</span>
@@ -469,6 +547,31 @@ function App() {
   const [state, setState] = React.useState({ status: "loading", rows: [], demo: false, error: "" });
 
   React.useEffect(() => {
+    // Vía recomendada: respuestas del formulario + carteles del repo.
+    if (!isPlaceholder(CSV_APUESTAS)) {
+      cargarCarteles().then((carteles) => {
+        Papa.parse(CSV_APUESTAS, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: (res) => {
+            const rows = filasDesdeRespuestas(res.data || [], carteles);
+            if (!rows.length) {
+              setState({ status: "ready", rows: demoRows(), demo: true,
+                         error: "El formulario todavía no tiene apuestas" });
+            } else {
+              setState({ status: "ready", rows, demo: false, error: "" });
+            }
+          },
+          error: (err) => {
+            setState({ status: "ready", rows: demoRows(), demo: true,
+                       error: (err && err.message) || "No se pudo descargar el CSV de apuestas" });
+          },
+        });
+      });
+      return;
+    }
+
     if (isPlaceholder(CSV_URL)) {
       setState({ status: "ready", rows: demoRows(), demo: true, error: "CSV_URL sin configurar" });
       return;

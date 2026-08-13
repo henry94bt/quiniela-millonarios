@@ -14,6 +14,23 @@ publicado como CSV.
 
 ---
 
+## 0. Cómo se guardan las cosas
+
+Hay tres sitios, y cada uno guarda una cosa distinta:
+
+| Qué | Dónde | Quién lo mantiene |
+|---|---|---|
+| Los 14 partidos de la jornada en curso | `jornada.json` | un bot, dos veces al día |
+| Los partidos de las jornadas ya pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
+| Las apuestas y los resultados | la hoja de Google | el formulario, según los va mandando cada uno |
+
+El dashboard junta los tres: los signos salen de la hoja y los nombres de los equipos
+de los dos JSON. Por eso las apuestas se van acumulando solas jornada tras jornada sin
+que nadie tenga que copiar nada.
+
+El **resultado** de cada jornada se mete por el mismo formulario, poniendo `Resultado`
+en el campo del nombre. Hasta que no llega esa fila, la jornada cuenta como no jugada.
+
 ## 1. La hoja de cálculo
 
 Crea un Google Sheet con una pestaña llamada **`boletos`** y esta cabecera exacta en la fila 1:
@@ -98,12 +115,20 @@ var FORM_ACTION = "https://docs.google.com/forms/d/e/TU_ID/formResponse";
 var FORM_CAMPOS = { jornada: "entry.111", nombre: "entry.222", signos: "entry.333" };
 ```
 
-En `combinar.html`, publica la hoja de respuestas como CSV (sección 2, pero eligiendo
-la pestaña de respuestas) y pega la URL en:
+Publica la hoja de respuestas como CSV (sección 2, pero eligiendo la pestaña de
+respuestas) y pega esa URL en **`combinar.html`** y en **`index.html`**:
 
 ```js
-var CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&output=csv";
+var   CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&output=csv";
+const CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&output=csv";
 ```
+
+Con `CSV_APUESTAS` puesto, el dashboard lee de ahí y `CSV_URL` deja de usarse: ya no
+hace falta la pestaña `boletos` con una fila por partido.
+
+**Las apuestas de la J1** (las de Adri y Pedro, que se hicieron antes de que existiera
+el formulario) están en `semilla-J1.csv`. Cuando tengas la hoja, pega esas dos filas
+debajo de la cabecera y el dashboard ya las contará.
 
 Un par de detalles de cómo se comporta:
 
