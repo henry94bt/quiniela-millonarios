@@ -100,6 +100,16 @@
 var CSV_URL = "PEGA_AQUI_LA_URL_CSV";
 var WHATSAPP_TO = "";
 
+/* Google Form donde se guardan las apuestas. Con esto configurado, el botón
+   "Guardar apuesta" las manda solas a la hoja y no hace falta copiar nada.
+   Cómo sacar la URL y los tres entry.N: README, sección 4. */
+var FORM_ACTION = "";   // .../formResponse
+var FORM_CAMPOS = { jornada: "", nombre: "", signos: "" };
+
+function formListo() {
+  return !!FORM_ACTION && !!FORM_CAMPOS.jornada && !!FORM_CAMPOS.nombre && !!FORM_CAMPOS.signos;
+}
+
 /* ------------------------------------------------------------ */
 
 var SIGNS = ["1", "X", "2"];
@@ -126,7 +136,13 @@ function esc(s) {
    Si la hoja todavía no tiene cargada la jornada (o CSV_URL no está
    configurada), tiramos de jornada.json, que lleva los partidos reales.
    Ver README, sección 7, para actualizarlo. */
+/* Abierto con doble clic desde el disco: las rutas relativas no funcionan. */
+var SUELTO = location.protocol === "file:" || location.protocol === "data:";
+var AVISO_SUELTO = "Has abierto el archivo desde el disco y así no puede cargar los partidos. " +
+  "Abre la versión publicada: henry94bt.github.io/quiniela-millonarios/";
+
 function conRespaldo(motivo) {
+  if (SUELTO) { boot(0, [], true, AVISO_SUELTO); return; }
   var req = new XMLHttpRequest();
   req.open("GET", "jornada.json?v=" + Date.now(), true);
   req.onload = function () {
@@ -204,6 +220,7 @@ function boot(jornada, partidos, demo, error) {
     if (saved && Array.isArray(saved.picks) && saved.picks.length === state.picks.length) {
       state.picks = saved.picks;
       state.nombre = saved.nombre || "";
+      state.enviado = !!saved.enviado;
     }
   } catch (e) { /* sin persistencia, da igual */ }
   render();
@@ -211,7 +228,8 @@ function boot(jornada, partidos, demo, error) {
 
 function persist() {
   try {
-    localStorage.setItem(storeKey(), JSON.stringify({ picks: state.picks, nombre: state.nombre }));
+    localStorage.setItem(storeKey(),
+      JSON.stringify({ picks: state.picks, nombre: state.nombre, enviado: state.enviado }));
   } catch (e) { /* modo privado */ }
 }
 
@@ -253,15 +271,21 @@ function render() {
   });
 
   html += '<footer><a href="index.html">← Ver el dashboard</a> · ' +
-          '<a href="combinar.html">Juntar las 3 apuestas →</a></footer>';
+          '<a href="combinar.html">Juntar las 3 apuestas →</a>' +
+          (formListo() ? ' · <a href="#" id="walink">mandarla por WhatsApp</a>' : '') +
+          '</footer>';
 
   html += '<div class="dock"><div class="inner">' +
           '<div class="status"><span><b>' + done + '</b> / ' + n + ' signos</span>' +
-          '<span>' + (completo ? "¡Boleto completo!" : "Faltan " + (n - done)) + '</span></div>' +
+          '<span>' + (state.enviado ? "Guardada ✓"
+                      : completo ? "¡Boleto completo!" : "Faltan " + (n - done)) + '</span></div>' +
           '<div class="barwrap"><div class="barfill" style="width:' + (n ? (done / n) * 100 : 0) + '%"></div></div>' +
           '<div class="actions" style="margin-top:11px">' +
           '<button class="act" id="copy" ' + (completo ? "" : "disabled") + '>Copiar signos</button>' +
-          '<button class="act primary" id="wa" ' + (completo ? "" : "disabled") + '>Enviar por WhatsApp</button>' +
+          (formListo()
+            ? '<button class="act primary" id="guardar" ' + (completo ? "" : "disabled") + '>' +
+              (state.enviado ? "Guardar otra vez" : "Guardar apuesta") + '</button>'
+            : '<button class="act primary" id="wa" ' + (completo ? "" : "disabled") + '>Enviar por WhatsApp</button>') +
           '</div></div></div>';
 
   app.innerHTML = html;
@@ -273,6 +297,7 @@ function render() {
     b.addEventListener("click", function () {
       var i = +b.dataset.i, s = b.dataset.s;
       state.picks[i] = state.picks[i] === s ? "" : s;   // volver a pulsar deselecciona
+      state.enviado = false;   // si lo cambias, hay que volver a guardarlo
       persist();
       render();
     });
@@ -282,6 +307,41 @@ function render() {
   if (copy) copy.addEventListener("click", onCopy);
   var wa = document.getElementById("wa");
   if (wa) wa.addEventListener("click", onWhatsApp);
+  var walink = document.getElementById("walink");
+  if (walink) walink.addEventListener("click", function (e) { e.preventDefault(); onWhatsApp(); });
+  var guardar = document.getElementById("guardar");
+  if (guardar) guardar.addEventListener("click", onGuardar);
+}
+
+/* ---------- guardar en el Google Form ---------- */
+function onGuardar() {
+  var nombre = state.nombre.trim();
+  if (!nombre) { toast("Escribe tu nombre antes de guardar"); return; }
+
+  var btn = document.getElementById("guardar");
+  btn.disabled = true;
+  btn.textContent = "Guardando…";
+
+  var fd = new FormData();
+  fd.append(FORM_CAMPOS.jornada, String(state.jornada));
+  fd.append(FORM_CAMPOS.nombre, nombre);
+  fd.append(FORM_CAMPOS.signos, state.picks.join(","));
+
+  // El formulario no permite leer su respuesta desde otro dominio (no-cors),
+  // así que sabemos si salió, pero no lo que contestó. Si falla la red, sí lo
+  // vemos: entra por el catch.
+  fetch(FORM_ACTION, { method: "POST", mode: "no-cors", body: fd })
+    .then(function () {
+      state.enviado = true;
+      persist();
+      toast("Apuesta guardada, " + nombre);
+      render();
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.textContent = "Reintentar";
+      toast("No se pudo guardar. Mira si tienes conexión.");
+    });
 }
 
 /* ---------- acciones ---------- */

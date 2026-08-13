@@ -101,6 +101,10 @@
    ============================================================ */
 var CSV_URL = "PEGA_AQUI_LA_URL_CSV";
 
+/* CSV de la pestaña de respuestas del Google Form. Con esto puesto, las tres
+   apuestas aparecen solas y no hace falta pegar nada. README, sección 4. */
+var CSV_APUESTAS = "";
+
 /* ------------------------------------------------------------ */
 
 var PLAYERS = [
@@ -121,7 +125,13 @@ function esc(s){ return String(s).replace(/[&<>"']/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
 
 /* ---------- carga de la jornada (igual que boleto.html) ---------- */
+/* Abierto con doble clic desde el disco: las rutas relativas no funcionan. */
+var SUELTO = location.protocol === "file:" || location.protocol === "data:";
+var AVISO_SUELTO = "Has abierto el archivo desde el disco y así no puede cargar los partidos. " +
+  "Abre la versión publicada: henry94bt.github.io/quiniela-millonarios/";
+
 function conRespaldo(motivo){
+  if(SUELTO){ boot(0, [], {}, AVISO_SUELTO); return; }
   var req = new XMLHttpRequest();
   req.open("GET","jornada.json?v="+Date.now(),true);
   req.onload = function(){
@@ -189,23 +199,72 @@ function boot(jornada, partidos, cols, aviso){
     });
   }catch(e){}
   render();
+  cargarApuestas();
 }
 
 function persist(){
   try{ localStorage.setItem(storeKey(), JSON.stringify({cols:state.cols})); }catch(e){}
 }
 
+/* ---------- apuestas guardadas en el formulario ---------- */
+function cargarApuestas(){
+  if(!CSV_APUESTAS || CSV_APUESTAS.indexOf("PEGA_AQUI")!==-1 || !state.partidos.length) return;
+  Papa.parse(CSV_APUESTAS,{
+    download:true, header:true, skipEmptyLines:true,
+    complete:function(res){
+      var n=state.partidos.length, quien={};
+      (res.data||[]).forEach(function(r){
+        var o={}; Object.keys(r).forEach(function(k){ o[normKey(k)]=r[k]; });
+        if(parseInt(o.jornada,10)!==state.jornada) return;
+        var nombre=String(o.nombre||"").trim().toLowerCase();
+        var pl=PLAYERS.filter(function(p){
+          return nombre.indexOf(p.key)!==-1 || p.key.indexOf(nombre)!==-1; })[0];
+        if(!pl) return;
+        var signos=String(o.signos||"").split(/[,\s]+/).map(normSign).filter(function(s){return s!=="";});
+        if(signos.length!==n) return;
+        // el formulario va añadiendo filas, así que la última manda: si alguien
+        // se corrige y vuelve a enviarla, se queda la buena
+        state.cols[pl.key]=signos;
+        quien[pl.name]=true;
+      });
+      var nombres=Object.keys(quien);
+      if(nombres.length){
+        state.nota="Cargadas del formulario: "+nombres.join(", ")+".";
+        persist(); render();
+      }
+    },
+    error:function(){ /* sin conexión: se sigue pudiendo pegar a mano */ }
+  });
+}
+
 /* ---------- leer los códigos de WhatsApp ---------- */
 function importar(texto){
   var re=/\[\s*J(\d+)\s*\|([^|\]]+)\|([^\]]+)\]/gi, m, encontrados=0, otras=[];
+  var leidos=[];
   while((m=re.exec(texto))!==null){
-    var j=parseInt(m[1],10);
     var nombre=m[2].trim().toLowerCase();
     var signos=m[3].split(/[,\s]+/).map(normSign).filter(function(s){return s!=="";});
     var pl=PLAYERS.filter(function(p){ return nombre.indexOf(p.key)!==-1 || p.key.indexOf(nombre)!==-1; })[0];
-    if(!pl || signos.length!==state.partidos.length) continue;
-    if(j!==state.jornada) otras.push("J"+j);
-    state.cols[pl.key]=signos;
+    if(pl && signos.length) leidos.push({ j:parseInt(m[1],10), pl:pl, signos:signos });
+  }
+
+  // Si no se pudieron cargar los partidos (sin conexión, o abierto desde el
+  // disco), montamos la rejilla con lo que digan los propios códigos: los
+  // signos son lo que importa, los nombres de los equipos son un adorno.
+  if(!state.partidos.length && leidos.length){
+    var n=leidos[0].signos.length;
+    state.jornada=leidos[0].j;
+    state.partidos=[];
+    for(var k=0;k<n;k++) state.partidos.push({ partido:k+1, local:"Partido "+(k+1), visitante:"" });
+    PLAYERS.forEach(function(p){ state.cols[p.key]=new Array(n).fill(""); });
+    state.aviso="Sin los nombres de los equipos (no se pudo cargar jornada.json), "+
+                "pero los signos van bien. Se ven numerados del 1 al "+n+".";
+  }
+
+  for(var q=0;q<leidos.length;q++){
+    if(leidos[q].signos.length!==state.partidos.length) continue;
+    if(leidos[q].j!==state.jornada) otras.push("J"+leidos[q].j);
+    state.cols[leidos[q].pl.key]=leidos[q].signos;
     encontrados++;
   }
   if(encontrados){
@@ -263,7 +322,8 @@ function render(){
     var todosIguales = vals[0]!=="" && vals.every(function(v){ return v===vals[0]; });
     html+='<tr class="'+(todosIguales?"igual":"")+'">';
     html+='<td class="cnum">'+(pt.partido||i+1)+'</td>';
-    html+='<td class="cmatch">'+esc(pt.local)+' <span class="vs">–</span> '+esc(pt.visitante)+'</td>';
+    html+='<td class="cmatch">'+esc(pt.local)+
+          (pt.visitante? ' <span class="vs">–</span> '+esc(pt.visitante) : '')+'</td>';
     PLAYERS.forEach(function(p){
       var v=state.cols[p.key][i]||"";
       html+='<td class="cell"><button class="sg" data-s="'+v+'" data-p="'+p.key+'" data-i="'+i+'">'+

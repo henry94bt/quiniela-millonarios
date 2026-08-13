@@ -66,7 +66,56 @@ Mientras `CSV_URL` siga con el texto `PEGA_AQUI_LA_URL_CSV` —o si la descarga 
 ambas páginas funcionan con **datos de demostración** y muestran un aviso ámbar.
 Así puedes ver el diseño antes de tener la hoja lista.
 
-## 4. Desplegar en GitHub Pages
+## 4. El formulario donde se guardan las apuestas
+
+Sin esto, el boleto **no guarda nada en ningún sitio compartido**: lo que marca cada
+uno se queda solo en su móvil, y la única forma de que llegue es que lo mande por
+WhatsApp. Con el formulario configurado, "Guardar apuesta" la escribe directamente en
+una hoja y `combinar.html` las recoge solas.
+
+### Crear el formulario
+
+1. En [forms.google.com](https://forms.google.com), formulario en blanco.
+2. Tres preguntas, todas de tipo **Respuesta corta**, tituladas **exactamente** así
+   (en minúscula, sin acentos): `jornada`, `nombre`, `signos`.
+3. Arriba, en **Respuestas**, pulsa el icono de Sheets para volcarlas a una hoja.
+
+### Sacar la URL y los tres `entry.N`
+
+1. Botón **Enviar** → pestaña del enlace `< >` → copia el HTML incrustado, o abre el
+   formulario y mira el código fuente de la página.
+2. Busca `entry.` y verás tres números, uno por pregunta, en el mismo orden en que las
+   creaste. Por ejemplo `entry.1234567890`.
+3. La URL de envío es la del formulario cambiando el final `/viewform` por
+   `/formResponse`.
+
+### Rellenar las constantes
+
+En `boleto.html`:
+
+```js
+var FORM_ACTION = "https://docs.google.com/forms/d/e/TU_ID/formResponse";
+var FORM_CAMPOS = { jornada: "entry.111", nombre: "entry.222", signos: "entry.333" };
+```
+
+En `combinar.html`, publica la hoja de respuestas como CSV (sección 2, pero eligiendo
+la pestaña de respuestas) y pega la URL en:
+
+```js
+var CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&output=csv";
+```
+
+Un par de detalles de cómo se comporta:
+
+- Google no deja leer la respuesta del envío desde otro dominio, así que el boleto sabe
+  si el envío **salió**, pero no lo que Google contestó. Si falla la red sí se entera y
+  te ofrece reintentar.
+- Se puede reenviar las veces que haga falta: al leerlas, **gana la última** de cada
+  jugador para esa jornada. Si alguien se equivoca, que la vuelva a mandar y ya está.
+- Si tocas un signo después de guardar, el botón vuelve a "Guardar apuesta" para que no
+  te quedes con una corrección sin enviar.
+
+## 5. Desplegar en GitHub Pages
 
 Ya está hecho en este repo, pero si empiezas de cero:
 
@@ -85,17 +134,17 @@ En un minuto tendrás:
 
 Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo que se sirve.
 
-## 5. El flujo de cada jornada
+## 6. El flujo de cada jornada
 
 1. Metes en la hoja las 14 filas de la jornada nueva con `local`, `visitante` y
    `resultado` **vacío**.
 2. Pasas el enlace de `boleto.html` al grupo. Cada uno marca sus 14 signos.
-3. Cada jugador pulsa **Copiar signos** (te llegan los 14 en vertical, listos para pegar
-   de un tirón en su columna) o **Enviar por WhatsApp**, que manda el resumen legible
-   más un código compacto tipo `[J9|Adri|1,X,2,1,1,X,...]`.
-4. Abres **`combinar.html`** y pegas ahí los mensajes de WhatsApp — puedes pegar la
-   conversación entera de golpe, solo busca los códigos. Te deja las tres apuestas en
-   una tabla, una columna por jugador:
+3. Cada jugador pulsa **Guardar apuesta** y ya está: se escribe sola en la hoja. (Si el
+   formulario no está configurado, el botón es **Enviar por WhatsApp** y manda un código
+   compacto tipo `[J9|Adri|1,X,2,1,1,X,...]`.)
+4. Abres **`combinar.html`**, que carga las tres apuestas solas. Si alguna llegó por
+   WhatsApp, pega ahí el mensaje — puedes pegar la conversación entera de golpe, solo
+   busca los códigos. Te deja las tres en una tabla, una columna por jugador:
    - **Copiar para la hoja** te da las 14×3 casillas; se pegan de una vez en la hoja
      poniéndote en la casilla de `henry` de ese partido 1.
    - El botón **copiar** de cada cabecera te da esa columna sola, en vertical.
@@ -108,7 +157,7 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
 Los signos a medio rellenar se guardan en el navegador (`localStorage`), así que si
 alguien cierra la página a mitad no pierde lo marcado.
 
-## 6. Los partidos de la jornada (`jornada.json`)
+## 7. Los partidos de la jornada (`jornada.json`)
 
 `boleto.html` usa la hoja como fuente principal, pero si la hoja todavía no tiene
 cargada la jornada pendiente, tira de **`jornada.json`**, que lleva los 14 partidos
@@ -164,7 +213,7 @@ Si un día la fuente cambia el HTML, el script fallará en voz alta (el workflow
 rojo) en vez de escribir basura, y `jornada.json` se queda como estaba. Para
 arreglarlo, el selector está en una sola línea: `<div class="bg-name">`.
 
-## 7. Detalles técnicos
+## 8. Detalles técnicos
 
 - React 18 + PapaParse + Babel standalone, todo desde cdnjs; los gráficos son SVG
   escritos a mano, sin librería de charts.

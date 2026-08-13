@@ -3,7 +3,7 @@
  *
  * Fuente: mundodeportivo.com/servicios/quiniela — se usa esta y no la oficial
  * de SELAE porque SELAE está detrás de Akamai y devuelve 403 a cualquier cosa
- * que no sea un navegador real en conexión doméstica (ver README, sección 6).
+ * que no sea un navegador real en conexión doméstica (ver README, sección 7).
  * Se comprobó que el orden de los 15 partidos coincide con el oficial.
  *
  * Node 20+, sin dependencias.  Uso:  node tools/actualizar-jornada.mjs
@@ -122,7 +122,7 @@ const salida = {
   _comentario:
     "Generado por tools/actualizar-jornada.mjs. No editar a mano salvo el número " +
     "de jornada o la temporada. Respaldo de boleto.html cuando la hoja aún no " +
-    "tiene cargada la jornada. Ver README, sección 6.",
+    "tiene cargada la jornada. Ver README, sección 7.",
   _fuente: URL_FUENTE,
   _actualizado: new Date().toISOString().slice(0, 10),
   jornada: jornadaNueva ? previo.jornada + 1 : previo.jornada,
