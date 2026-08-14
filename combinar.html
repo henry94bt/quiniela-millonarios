@@ -120,6 +120,11 @@ function formListo(){
   return !!FORM_ACTION && !!FORM_CAMPOS.jornada && !!FORM_CAMPOS.nombre && !!FORM_CAMPOS.signos;
 }
 
+/* Donde se guardan de verdad las apuestas: un archivo del propio repo. El
+   enlace abre GitHub en modo edición, se pega y se le da a "Commit changes". */
+var URL_EDITAR_APUESTAS =
+  "https://github.com/henry94bt/quiniela-millonarios/edit/main/apuestas.json";
+
 /* ------------------------------------------------------------ */
 
 var PLAYERS = [
@@ -131,7 +136,7 @@ var SIGNS = ["1", "X", "2"];
 var CICLO = { "": "1", "1": "X", "X": "2", "2": "" };
 
 var app = document.getElementById("app");
-var state = { jornada: null, partidos: [], cols: {}, aviso: "", nota: "" };
+var state = { jornada: null, temporada: "", partidos: [], cols: {}, aviso: "", nota: "" };
 
 function isPlaceholder(u){ return !u || !/^https?:\/\//i.test(u) || u.indexOf("PEGA_AQUI") !== -1; }
 function normSign(v){ var s=String(v==null?"":v).trim().toUpperCase(); return (s==="1"||s==="2"||s==="X")?s:""; }
@@ -152,7 +157,8 @@ function conRespaldo(motivo){
   req.onload = function(){
     try{
       var d = JSON.parse(req.responseText);
-      boot(d.jornada, d.partidos, {}, motivo+". Partidos de jornada.json.");
+      state.temporada = d.temporada || "";
+      boot(d.jornada, d.partidos, {}, motivo ? motivo+". Partidos de jornada.json." : "");
     }catch(e){ boot(0,[],{},motivo+", y jornada.json no se pudo leer"); }
   };
   req.onerror = function(){ boot(0,[],{},motivo+", y jornada.json no se pudo descargar"); };
@@ -160,7 +166,7 @@ function conRespaldo(motivo){
 }
 
 function load(){
-  if (isPlaceholder(CSV_URL)) { conRespaldo("CSV_URL sin configurar"); return; }
+  if (isPlaceholder(CSV_URL)) { conRespaldo(""); return; }
   Papa.parse(CSV_URL,{
     download:true, header:true, skipEmptyLines:true,
     complete:function(res){
@@ -214,11 +220,43 @@ function boot(jornada, partidos, cols, aviso){
     });
   }catch(e){}
   render();
+  cargarApuestasRepo();
   cargarApuestas();
 }
 
 function persist(){
   try{ localStorage.setItem(storeKey(), JSON.stringify({cols:state.cols})); }catch(e){}
+}
+
+/* ---------- apuestas ya guardadas en el repo ---------- */
+function cargarApuestasRepo(){
+  if(SUELTO || !state.partidos.length) return;
+  var req = new XMLHttpRequest();
+  req.open("GET","apuestas.json?v="+Date.now(),true);
+  req.onload = function(){
+    try{
+      var lista = JSON.parse(req.responseText);
+      var n = state.partidos.length, quien = {};
+      (Array.isArray(lista)?lista:[]).forEach(function(a){
+        if(parseInt(a.jornada,10)!==state.jornada) return;
+        var nombre=String(a.nombre||"").trim().toLowerCase();
+        var pl=PLAYERS.filter(function(p){
+          return nombre.indexOf(p.key)!==-1 || p.key.indexOf(nombre)!==-1; })[0];
+        if(!pl) return;
+        var signos=String(a.signos||"").split(/[,\s]+/).map(normSign).filter(function(s){return s!=="";});
+        if(signos.length!==n) return;
+        state.cols[pl.key]=signos;
+        quien[pl.name]=true;
+        if(a.temporada) state.temporada=a.temporada;
+      });
+      var nombres=Object.keys(quien);
+      if(nombres.length){
+        state.nota="Ya guardadas: "+nombres.join(", ")+".";
+        render();
+      }
+    }catch(e){}
+  };
+  req.send();
 }
 
 /* ---------- apuestas guardadas en el formulario ---------- */
@@ -296,6 +334,15 @@ function importar(texto){
 }
 
 /* ---------- salidas ---------- */
+/* Bloque para pegar en apuestas.json, que es donde se guardan de verdad.
+   Se copia entero: las líneas de las columnas completas, con su coma. */
+function bloqueParaRepo(){
+  return PLAYERS.filter(function(p){ return completa(p.key); }).map(function(p){
+    return '  { "temporada": "'+(state.temporada||"")+'", "jornada": '+state.jornada+
+           ', "nombre": "'+p.name+'", "signos": "'+state.cols[p.key].join(",")+'" },';
+  }).join("\n");
+}
+
 function columnaVertical(key){ return state.cols[key].join("\n"); }
 function tsvTresColumnas(){
   return state.partidos.map(function(_,i){
@@ -355,17 +402,17 @@ function render(){
   html+='<div class="dock"><div class="inner">'+
         '<div class="status"><span>'+totales+'</span><span><b>'+n+'</b> partidos</span></div>'+
         '<div class="actions">'+
-        '<button class="act" id="tsv" '+(algunaCompleta()?"":"disabled")+'>Copiar para la hoja</button>'+
+        '<button class="act" id="repo" '+(completas?"":"disabled")+'>Copiar para guardar</button>'+
         (formListo()
           ? '<button class="act primary" id="guardar" '+(completas?"":"disabled")+'>'+
             'Guardar '+(completas===1?"1 apuesta":"las "+completas)+'</button>'
           : '<button class="act primary" id="wa" '+(algunaCompleta()?"":"disabled")+'>Enviar las 3 por WhatsApp</button>')+
         '</div>'+
-        (formListo()
-          ? '<div class="hint" style="margin-top:8px">También puedes mandarlas por '+
-            '<a href="#" id="walink" style="color:var(--s1)">WhatsApp</a>.</div>'
-          : '<div class="hint" style="margin-top:8px">Para guardarlas directamente en la hoja hay que '+
-            'configurar el formulario (README, sección 4).</div>')+
+        '<div class="hint" style="margin-top:8px">'+
+        '<a href="'+URL_EDITAR_APUESTAS+'" target="_blank" style="color:var(--s1)">Abrir apuestas.json</a>'+
+        ' para pegarlas · <a href="#" id="tsv" style="color:var(--s1)">copiar para una hoja</a>'+
+        (formListo()? ' · <a href="#" id="walink" style="color:var(--s1)">WhatsApp</a>' : '')+
+        '</div>'+
         '</div></div>';
 
   app.innerHTML=html;
@@ -388,8 +435,13 @@ function render(){
     });
   });
   var tsv=document.getElementById("tsv");
-  if(tsv) tsv.addEventListener("click", function(){
+  if(tsv) tsv.addEventListener("click", function(e){
+    e.preventDefault();
     copiar(tsvTresColumnas(), "3 columnas copiadas: pega en la casilla de Henry");
+  });
+  var repo=document.getElementById("repo");
+  if(repo) repo.addEventListener("click", function(){
+    copiar(bloqueParaRepo(), "Copiado. Pégalo en apuestas.json, debajo del [");
   });
   var wa=document.getElementById("wa");
   if(wa) wa.addEventListener("click", enviarWhatsApp);

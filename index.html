@@ -217,7 +217,8 @@ function cargarCarteles() {
     pedir("jornada.json"),
     pedir("historico.json"),
     pedir("resultados.json"),
-  ]).then(([act, hist, res]) => {
+    pedir("apuestas.json"),
+  ]).then(([act, hist, res, apu]) => {
     const mapa = new Map();
     (Array.isArray(hist) ? hist : []).forEach((h) => {
       mapa.set(h.jornada, { temporada: h.temporada, partidos: h.partidos || [] });
@@ -231,6 +232,9 @@ function cargarCarteles() {
       if (signos.length) resultados.set(r.jornada, signos);
     });
     mapa.resultados = resultados;
+    // Apuestas guardadas en el propio repo. Es la vía sin depender de nada de
+    // fuera; si además hay hoja, lo de la hoja manda por ser más reciente.
+    mapa.apuestas = Array.isArray(apu) ? apu : [];
     return mapa;
   });
 }
@@ -734,31 +738,27 @@ function App() {
   const [state, setState] = React.useState({ status: "loading", rows: [], demo: false, error: "" });
 
   React.useEffect(() => {
-    // Vía recomendada: respuestas del formulario + carteles del repo.
-    if (!isPlaceholder(CSV_APUESTAS)) {
-      cargarCarteles().then((carteles) => {
-        Papa.parse(CSV_APUESTAS, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: (res) => {
-            const rows = filasDesdeRespuestas(res.data || [], carteles);
-            if (!rows.length) {
-              setState({ status: "ready", rows: demoRows(), demo: true,
-                         error: "El formulario todavía no tiene apuestas" });
-            } else {
-              setState({ status: "ready", rows, demo: false, error: "" });
-            }
-          },
-          error: (err) => {
-            setState({ status: "ready", rows: demoRows(), demo: true,
-                       error: (err && err.message) || "No se pudo descargar el CSV de apuestas" });
-          },
-        });
-      });
-      return;
-    }
+    // Vía normal: apuestas del repo (apuestas.json) y, si además hay una hoja
+    // configurada, lo que llegue por ahí, que gana por ser lo más reciente.
+    cargarCarteles().then((carteles) => {
+      const listo = (data) => {
+        const rows = filasDesdeRespuestas((carteles.apuestas || []).concat(data || []), carteles);
+        if (rows.length) setState({ status: "ready", rows, demo: false, error: "" });
+        else seguirConLoAntiguo();
+      };
 
+      if (!isPlaceholder(CSV_APUESTAS)) {
+        Papa.parse(CSV_APUESTAS, {
+          download: true, header: true, skipEmptyLines: true,
+          complete: (res) => listo(res.data),
+          error: () => listo([]),   // sin hoja nos quedamos con lo del repo
+        });
+      } else {
+        listo([]);
+      }
+    });
+
+    function seguirConLoAntiguo() {
     if (isPlaceholder(CSV_URL)) {
       setState({ status: "ready", rows: demoRows(), demo: true, error: "CSV_URL sin configurar" });
       return;
@@ -779,6 +779,7 @@ function App() {
         setState({ status: "ready", rows: demoRows(), demo: true, error: (err && err.message) || "No se pudo descargar el CSV" });
       },
     });
+    }
   }, []);
 
   if (state.status === "loading") {
@@ -816,9 +817,9 @@ function App() {
 
       {st.jugadas.length === 0 && st.pendiente && (
         <div className="banner" style={{ background: "rgba(74,157,224,.10)", borderColor: "rgba(74,157,224,.35)", color: "#8FC4EE" }}>
-          Todavía no hay ninguna jornada con resultados. La clasificación y las gráficas
-          aparecerán en cuanto se mande el resultado de la J{st.pendiente.jornada}
-          {" "}(por el mismo boleto, poniendo <b>Resultado</b> en el nombre).
+          La J{st.pendiente.jornada} todavía no se ha jugado. La clasificación y las gráficas
+          aparecerán solas en cuanto terminen los partidos: los resultados se recogen
+          automáticamente, no hay que meterlos.
         </div>
       )}
 

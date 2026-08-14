@@ -18,19 +18,23 @@ publicado como CSV.
 
 Hay tres sitios, y cada uno guarda una cosa distinta:
 
+Todo vive en el propio repo. No hace falta configurar nada para que funcione:
+
 | Qué | Dónde | Quién lo mantiene |
 |---|---|---|
 | Los 14 partidos de la jornada en curso | `jornada.json` | un bot, dos veces al día |
 | Los partidos de las jornadas ya pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
 | Los resultados de cada jornada | `resultados.json` | el mismo bot, al terminarse los partidos |
-| **Las apuestas** | la hoja de Google | el formulario, según las manda cada uno |
+| **Las apuestas** | `apuestas.json` | **a mano, una vez por jornada** |
 
-Lo único que hay que meter a mano son **las apuestas**. Todo lo demás se actualiza solo.
-El dashboard junta las cuatro cosas: los signos de cada uno salen de la hoja, y los
-partidos y los resultados de los JSON del repo.
+Lo único que se mete a mano son **las apuestas**: `combinar.html` te da el bloque ya
+escrito y lo pegas en `apuestas.json`. Todo lo demás se actualiza solo.
 
-Si alguna vez el resultado automático viniera mal, se puede corregir mandando el
-formulario con `Resultado` en el nombre: esa fila manda sobre la del bot.
+Opcionalmente se puede montar un Google Form para que cada uno guarde la suya desde el
+móvil y no haya ni que pegar (sección 4). No es obligatorio: si no lo montas, el repo
+sigue siendo el sitio donde se guardan.
+
+Si alguna vez el resultado automático viniera mal, se corrige a mano en `resultados.json`.
 
 ## 1. La hoja de cálculo
 
@@ -84,12 +88,13 @@ Mientras `CSV_URL` siga con el texto `PEGA_AQUI_LA_URL_CSV` —o si la descarga 
 ambas páginas funcionan con **datos de demostración** y muestran un aviso ámbar.
 Así puedes ver el diseño antes de tener la hoja lista.
 
-## 4. El formulario donde se guardan las apuestas
+## 4. El formulario (opcional)
 
-Sin esto, el boleto **no guarda nada en ningún sitio compartido**: lo que marca cada
-uno se queda solo en su móvil, y la única forma de que llegue es que lo mande por
-WhatsApp. Con el formulario configurado, "Guardar apuesta" la escribe directamente en
-una hoja y `combinar.html` las recoge solas.
+Las apuestas se guardan en `apuestas.json` pegando el bloque que te da `combinar.html`.
+Eso ya funciona sin montar nada.
+
+Lo que aporta el formulario es quitarte ese pegado: cada uno le da a **Guardar apuesta**
+en su móvil y se escribe sola en una hoja. Si te compensa, se monta así.
 
 ### Crear el formulario
 
@@ -169,17 +174,17 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
 
 1. No haces nada: los partidos de la jornada nueva aparecen solos.
 2. Pasas el enlace de `boleto.html` al grupo. Cada uno marca sus 14 signos.
-3. Cada jugador pulsa **Guardar apuesta** y ya está: se escribe sola en la hoja. (Si el
-   formulario no está configurado, el botón es **Enviar por WhatsApp** y manda un código
-   compacto tipo `[J9|Adri|1,X,2,1,1,X,...]`.)
-4. Abres **`combinar.html`**, que carga las tres apuestas solas. Si alguna llegó por
-   WhatsApp, pega ahí el mensaje — puedes pegar la conversación entera de golpe, solo
-   busca los códigos. Te deja las tres en una tabla, una columna por jugador:
-   - **Copiar para la hoja** te da las 14×3 casillas; se pegan de una vez en la hoja
-     poniéndote en la casilla de `henry` de ese partido 1.
+3. Cada jugador pulsa **Enviar por WhatsApp**, que manda un código compacto tipo
+   `[J9|Adri|1,X,2,1,1,X,...]`. (Con el formulario montado, en su lugar sale **Guardar
+   apuesta** y no hay que mandar nada.)
+4. Abres **`combinar.html`** y pegas los mensajes — vale la conversación entera de golpe,
+   solo busca los códigos. Te deja las tres en una tabla, una columna por jugador:
+   - La tabla en pantalla es la vista para ir metiéndolas en **TuLotero**: las filas
+     donde los tres coinciden salen resaltadas.
+   - **Copiar para guardar** te da el bloque de `apuestas.json`. Pulsas *Abrir
+     apuestas.json*, lo pegas justo debajo del `[`, y **Commit changes**. Ya están
+     guardadas y el dashboard las coge.
    - El botón **copiar** de cada cabecera te da esa columna sola, en vertical.
-   - La tabla en pantalla es la vista rápida para ir metiéndolas en **TuLotero**: las
-     filas donde los tres coinciden salen resaltadas.
    - Cualquier casilla se corrige tocándola (`1 → X → 2 → vacío`).
 5. Cuando se juegue la jornada, **tampoco haces nada**: el bot recoge los resultados del
    marcador en cuanto termina el último partido, y el dashboard se actualiza solo.

@@ -154,7 +154,7 @@ function conRespaldo(motivo) {
     try {
       var d = JSON.parse(req.responseText);
       boot(d.jornada, d.partidos, false,
-           motivo + ". Partidos tomados de jornada.json (temporada " + d.temporada + ").");
+           motivo ? motivo + ". Partidos tomados de jornada.json." : "");
     } catch (e) {
       boot(0, [], true, motivo + ", y jornada.json no se pudo leer");
     }
@@ -166,7 +166,7 @@ function conRespaldo(motivo) {
 /* ---------- carga ---------- */
 function load() {
   if (isPlaceholder(CSV_URL)) {
-    conRespaldo("CSV_URL sin configurar");
+    conRespaldo("");
     return;
   }
   Papa.parse(CSV_URL, {
