@@ -97,6 +97,7 @@
   .pick.hit{background:rgba(53,196,107,.16);border-color:rgba(53,196,107,.5);color:var(--s1)}
   .pick.miss{opacity:.45;text-decoration:line-through}
   .center{text-align:center}
+  tr.acuerdo{background:rgba(53,196,107,.06)}
   .tot{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
 
   .signotab{width:100%;border-collapse:collapse;font-size:13px}
@@ -604,8 +605,13 @@ function LastTicket({ j }) {
           </tr>
         </thead>
         <tbody>
-          {j.partidos.map((p, i) => (
-            <tr key={i}>
+          {j.partidos.map((p, i) => {
+            // Cuando los tres coinciden, esa fila se mete en TuLotero de
+            // corrido: se resalta para no tener que ir comparando.
+            const vs = PLAYERS.map((pl) => p[pl.key]);
+            const acuerdo = vs[0] && vs.every((v) => v === vs[0]);
+            return (
+            <tr key={i} className={acuerdo ? "acuerdo" : ""}>
               <td className="num">{p.partido || i + 1}</td>
               <td className="match">
                 {p.local}{p.visitante ? <> <em>–</em> {p.visitante}</> : null}
@@ -621,7 +627,8 @@ function LastTicket({ j }) {
                 return <td key={pl.key} className="center"><span className={cls}>{v || "·"}</span></td>;
               })}
             </tr>
-          ))}
+            );
+          })}
           {jugada && (
             <tr>
               <td></td>
