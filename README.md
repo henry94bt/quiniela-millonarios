@@ -13,11 +13,11 @@ servidas por GitHub Pages:
 
 ## Cómo se guardan las cosas
 
-Todo vive en el propio repo. No hay nada que configurar para que funcione:
+Cada cosa en su sitio:
 
 | Qué | Dónde | Quién lo mantiene |
 |---|---|---|
-| Los 14 partidos de la jornada en curso | `jornada.json` | un bot, dos veces al día |
+| Los 14 partidos de la jornada en curso | `jornada.json` | un bot, cada 3 horas |
 | Los partidos de las jornadas pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
 | Los resultados de cada jornada | `resultados.json` | el mismo bot, al acabar los partidos |
 | **Las apuestas** | la hoja del formulario | cada uno, desde el boleto |
@@ -71,11 +71,10 @@ Detalles de cómo se comporta:
   **salió**, pero no lo que Google contestó. Si falla la red sí se entera y te deja
   reintentar.
 - Se puede reenviar: al leerlas **gana la última** de cada jugador para esa jornada.
-- Lo de la hoja manda sobre lo de `apuestas.json`, por ser más reciente.
 
 ## De dónde salen los partidos y los resultados
 
-Los actualiza `.github/workflows/jornada.yml` dos veces al día, ejecutando
+Los actualiza `.github/workflows/jornada.yml` cada 3 horas, ejecutando
 `tools/actualizar-jornada.mjs`. A mano: pestaña **Actions → Actualizar jornada → Run
 workflow**, o en local:
 
