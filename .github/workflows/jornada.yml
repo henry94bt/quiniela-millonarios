@@ -2,7 +2,11 @@ name: Actualizar jornada
 
 on:
   schedule:
-    - cron: "0 7,17 * * *"   # dos veces al día, hora UTC
+    # Cada tres horas. El marcador de dataradar solo tiene la jornada que se
+    # está jugando: cuando pasa a la siguiente, el resultado de la anterior ya
+    # no se puede recoger. Con dos pasadas al día la ventana era demasiado
+    # justa, sobre todo con el último partido un lunes por la noche.
+    - cron: "0 */3 * * *"
   workflow_dispatch:          # y a mano desde la pestaña Actions
 
 permissions:
