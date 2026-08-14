@@ -1,29 +1,53 @@
 /**
- * Actualiza jornada.json con los 14 partidos de la quiniela en curso.
+ * Mantiene al día los tres archivos de datos del repo:
  *
- * Fuente: mundodeportivo.com/servicios/quiniela — se usa esta y no la oficial
- * de SELAE porque SELAE está detrás de Akamai y devuelve 403 a cualquier cosa
- * que no sea un navegador real en conexión doméstica (ver README, sección 7).
- * Se comprobó que el orden de los 15 partidos coincide con el oficial.
+ *   jornada.json     el cartel de la jornada en curso
+ *   historico.json   los carteles de las jornadas ya pasadas
+ *   resultados.json  los 14 signos de cada jornada terminada
+ *
+ * Fuentes (las tres responden desde un runner de GitHub; la oficial de SELAE
+ * no, ver README sección 7):
+ *
+ *   quinielista.es  número de jornada y temporada oficiales
+ *   mundodeportivo  el cartel de la jornada que viene
+ *   dataradar.es    marcador en vivo, de donde salen los signos al terminar
  *
  * Node 20+, sin dependencias.  Uso:  node tools/actualizar-jornada.mjs
  *   --dry-run  no escribe nada, solo enseña lo que haría
- *   --seed     reescribe los partidos SIN subir el número de jornada. Sirve para
- *              fijar la base con la nomenclatura de la fuente, o para corregir a
- *              mano el número de jornada y volver a sincronizar.
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
-const URL_FUENTE = "https://www.mundodeportivo.com/servicios/quiniela";
+const URL_JORNADA = "https://static.quinielista.es/quinielista/jornada_quiniela.json";
+const URL_CARTEL = "https://www.mundodeportivo.com/servicios/quiniela";
+const URL_MARCADOR = "https://static.dataradar.es/marcador/json/partidos.json";
+
 const DESTINO = new URL("../jornada.json", import.meta.url);
 const HISTORICO = new URL("../historico.json", import.meta.url);
+const RESULTADOS = new URL("../resultados.json", import.meta.url);
 const DRY = process.argv.includes("--dry-run");
-const SEED = process.argv.includes("--seed");
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
   "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
+const pedir = (u, tipo) =>
+  fetch(u, { headers: { "User-Agent": UA, "Accept-Language": "es-ES,es;q=0.9" } }).then((r) => {
+    if (!r.ok) throw new Error(`${u} respondió ${r.status}`);
+    return tipo === "buffer" ? r.arrayBuffer() : r.json();
+  });
+
+const leer = (ruta, porDefecto) =>
+  existsSync(ruta) ? JSON.parse(readFileSync(ruta, "utf8")) : porDefecto;
+
+const escribir = (ruta, dato) => {
+  if (!DRY) writeFileSync(ruta, JSON.stringify(dato, null, 2) + "\n");
+};
+
+/** quinielista numera la temporada por el año en que acaba: 2027 = 2026-2027. */
+const temporadaTexto = (n) => `${n - 1}-${n}`;
+
+/* ---------- el cartel, del HTML de mundodeportivo ---------- */
 
 /** La página declara utf-8 pero sirve windows-1252. Si al decodificar como
  *  utf-8 aparecen caracteres de reemplazo, reintentamos con 1252. */
@@ -33,7 +57,7 @@ function decodificar(buf) {
   return new TextDecoder("windows-1252").decode(buf);
 }
 
-const MAYUS = new Set(["FC", "CF", "CD", "SD", "UD", "RCD", "AD", "SAD", "B"]);
+const MAYUS = new Set(["FC", "CF", "CD", "SD", "UD", "RCD", "AD", "SAD", "B", "AIK"]);
 function capitalizar(nombre) {
   return nombre
     .toLowerCase()
@@ -47,7 +71,7 @@ function capitalizar(nombre) {
     .join("");
 }
 
-function extraerPartidos(html) {
+function extraerCartel(html) {
   const nombres = [...html.matchAll(/<div class="bg-name">(.*?)<\/div>/gs)].map((m) =>
     m[1].replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim()
   );
@@ -61,117 +85,107 @@ function extraerPartidos(html) {
     return { partido: i + 1, local: capitalizar(local), visitante: capitalizar(visitante) };
   });
   const resto = nombres.slice(14);
-  const pleno15 = resto.length >= 2
-    ? { local: capitalizar(resto[0]), visitante: capitalizar(resto[1]) }
-    : (() => {
-        const [l, v] = resto[0].split(/\s+-\s+/);
-        return { local: capitalizar(l), visitante: capitalizar(v) };
-      })();
+  const pleno15 =
+    resto.length >= 2
+      ? { local: capitalizar(resto[0]), visitante: capitalizar(resto[1]) }
+      : (() => {
+          const [l, v] = resto[0].split(/\s+-\s+/);
+          return { local: capitalizar(l), visitante: capitalizar(v) };
+        })();
   return { partidos, pleno15 };
 }
 
-/* Cuántos de los 14 partidos han cambiado.
-   No basta con comparar nombres exactos: la fuente los retoca de vez en cuando
-   ("Celta B" pasó a "Celta Fortuna" a media tarde) y eso no es una jornada
-   nueva. Una jornada nueva cambia casi los 14 a la vez, así que decidimos por
-   umbral: pocos cambios = mismo cartel con otro nombre. */
-const UMBRAL_JORNADA_NUEVA = 5;
+/* ================== a trabajar ================== */
 
-const norm = (s) =>
-  s.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[^a-z0-9]/g, "");
+const meta = await pedir(URL_JORNADA);
+const actual = meta && meta.Quiniela && meta.Quiniela.jornada_actual;
+if (!actual || !actual.num) throw new Error("No pude leer la jornada actual de quinielista");
 
-const cuantosCambian = (a, b) =>
-  a.length !== b.length
-    ? Infinity
-    : a.reduce(
-        (n, p, i) =>
-          n + (norm(p.local) !== norm(b[i].local) || norm(p.visitante) !== norm(b[i].visitante) ? 1 : 0),
-        0
-      );
+const jornada = Number(actual.num);
+const temporada = temporadaTexto(Number(actual.temporada));
+const previo = leer(DESTINO, null);
 
-const res = await fetch(URL_FUENTE, {
-  headers: { "User-Agent": UA, "Accept-Language": "es-ES,es;q=0.9" },
-});
-if (!res.ok) throw new Error(`La fuente respondió ${res.status}`);
-const html = decodificar(await res.arrayBuffer());
+console.log(`Jornada en juego según quinielista: J${jornada} (${temporada}).`);
 
-const { partidos, pleno15 } = extraerPartidos(html);
-const previo = JSON.parse(readFileSync(DESTINO, "utf8"));
+/* ---------- 1. cartel ---------- */
+// El número lo manda quinielista, así que ya no hay que adivinarlo contando
+// carteles: si cambia el par (temporada, jornada), es jornada nueva y punto.
+const esJornadaNueva = !previo || previo.jornada !== jornada || previo.temporada !== temporada;
 
-const cambios = cuantosCambian(partidos, previo.partidos);
-const jornadaNueva = !SEED && cambios >= UMBRAL_JORNADA_NUEVA;
-
-// Nada de process.exit() aquí: con la conexión aún cerrándose, Node aborta con
-// "UV_HANDLE_CLOSING" y devuelve un código de error que pondría el workflow en
-// rojo sin haber pasado nada. Se sale dejando que el módulo termine solo.
-const sinTocarNada =
-  !SEED && (cambios === 0 || !jornadaNueva);
-
-if (!SEED && cambios === 0) {
-  console.log(`Sin cambios: sigue la J${previo.jornada} (${partidos[0].local} – ${partidos[0].visitante}).`);
-} else if (!SEED && !jornadaNueva) {
-  // Solo han retocado nombres. Reescribir aquí haría que el bot commiteara
-  // ida y vuelta cada vez que la fuente cambia de nodo de caché, así que
-  // dejamos el fichero como está: el cartel es el mismo.
-  console.log(
-    `${cambios} partido(s) solo con el nombre retocado: sigue la J${previo.jornada}, no toco nada.`
-  );
-}
-
-if (!sinTocarNada) {
-
-// El número de jornada de la fuente es su propia numeración, no la de SELAE,
-// así que lo llevamos nosotros: cartel nuevo = jornada siguiente.
-// Al empezar temporada hay que poner jornada 0 y temporada nueva a mano.
-const salida = {
-  ...previo,
-  _comentario:
-    "Generado por tools/actualizar-jornada.mjs. No editar a mano salvo el número " +
-    "de jornada o la temporada. Respaldo de boleto.html cuando la hoja aún no " +
-    "tiene cargada la jornada. Ver README, sección 7.",
-  _fuente: URL_FUENTE,
-  _actualizado: new Date().toISOString().slice(0, 10),
-  jornada: jornadaNueva ? previo.jornada + 1 : previo.jornada,
-  partidos,
-  pleno15,
-};
-delete salida.fecha_sorteo;
-delete salida.cierre;
-
-if (jornadaNueva) console.log(`Jornada nueva: J${previo.jornada} → J${salida.jornada}`);
-else if (SEED) console.log(`Base fijada en J${salida.jornada} (sin subir jornada).`);
-for (const p of partidos) console.log(`  ${String(p.partido).padStart(2)}. ${p.local} – ${p.visitante}`);
-console.log(`  P15. ${pleno15.local} – ${pleno15.visitante}`);
-
-/* Al cambiar de jornada guardamos la que se va en historico.json. Sin esto, el
-   dashboard se queda sin los nombres de los equipos de las jornadas pasadas:
-   los signos viven en la hoja, pero los carteles solo están aquí. */
-function archivar() {
-  const hist = existsSync(HISTORICO) ? JSON.parse(readFileSync(HISTORICO, "utf8")) : [];
-  if (hist.some((h) => h.jornada === previo.jornada && h.temporada === previo.temporada)) {
-    return hist.length;
-  }
-  hist.push({
-    temporada: previo.temporada,
-    jornada: previo.jornada,
-    partidos: previo.partidos,
-    pleno15: previo.pleno15,
-  });
-  hist.sort((a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada);
-  if (!DRY) writeFileSync(HISTORICO, JSON.stringify(hist, null, 2) + "\n");
-  return hist.length;
-}
-
-if (DRY) {
-  if (jornadaNueva) console.log(`\nArchivaría la J${previo.jornada} en historico.json.`);
-  console.log("--dry-run: no se ha escrito nada.");
+if (!esJornadaNueva) {
+  console.log("Sigue siendo la misma jornada: no toco el cartel.");
 } else {
-  if (jornadaNueva) {
-    const n = archivar();
-    console.log(`\nJ${previo.jornada} archivada en historico.json (${n} jornadas guardadas).`);
+  const { partidos, pleno15 } = extraerCartel(decodificar(await pedir(URL_CARTEL, "buffer")));
+
+  if (previo) {
+    const hist = leer(HISTORICO, []);
+    const yaEsta = hist.some(
+      (h) => h.jornada === previo.jornada && h.temporada === previo.temporada
+    );
+    if (!yaEsta) {
+      hist.push({
+        temporada: previo.temporada,
+        jornada: previo.jornada,
+        partidos: previo.partidos,
+        pleno15: previo.pleno15,
+      });
+      hist.sort(
+        (a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada
+      );
+      escribir(HISTORICO, hist);
+      console.log(`J${previo.jornada} archivada en historico.json (${hist.length} guardadas).`);
+    }
   }
-  writeFileSync(DESTINO, JSON.stringify(salida, null, 2) + "\n");
-  console.log("jornada.json actualizado.");
+
+  escribir(DESTINO, {
+    _comentario:
+      "Generado por tools/actualizar-jornada.mjs. No editar a mano: se reescribe solo. " +
+      "Respaldo de boleto.html cuando la hoja aún no tiene cargada la jornada. " +
+      "Ver README, sección 7.",
+    _fuentes: { jornada: URL_JORNADA, cartel: URL_CARTEL },
+    _actualizado: new Date().toISOString().slice(0, 10),
+    temporada,
+    jornada,
+    partidos,
+    pleno15,
+  });
+  console.log(`Cartel nuevo escrito para la J${jornada}:`);
+  for (const p of partidos) console.log(`  ${String(p.partido).padStart(2)}. ${p.local} – ${p.visitante}`);
+  console.log(`  P15. ${pleno15.local} – ${pleno15.visitante}`);
 }
 
+/* ---------- 2. resultados ---------- */
+// El marcador solo tiene la jornada que se está jugando, así que hay que
+// pillarla cuando termina. Como cada partido dice a qué jornada pertenece, no
+// hay que adivinar nada: se guarda bajo la suya.
+const marcador = await pedir(URL_MARCADOR);
+const partidosM = (Array.isArray(marcador) ? marcador : [])
+  .filter((p) => p && p.orden >= 1 && p.orden <= 14)
+  .sort((a, b) => a.orden - b.orden);
+
+if (partidosM.length !== 14) {
+  console.log(`El marcador trae ${partidosM.length} partidos de los 14: no guardo resultados.`);
+} else {
+  const terminados = partidosM.filter((p) => p.estado === "Finalizado").length;
+  const jm = Number(partidosM[0].jornada);
+  const tm = temporadaTexto(Number(partidosM[0].temporada));
+  const signos = partidosM.map((p) => String(p.signo || "").trim().toUpperCase());
+  const validos = signos.every((s) => s === "1" || s === "X" || s === "2");
+
+  if (terminados < 14 || !validos) {
+    console.log(`J${jm} (${tm}): ${terminados}/14 terminados. Todavía no hay resultado que guardar.`);
+  } else {
+    const res = leer(RESULTADOS, []);
+    const yaEsta = res.some((r) => r.jornada === jm && r.temporada === tm);
+    if (yaEsta) {
+      console.log(`J${jm} (${tm}): el resultado ya estaba guardado.`);
+    } else {
+      res.push({ temporada: tm, jornada: jm, signos: signos.join(",") });
+      res.sort((a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada);
+      escribir(RESULTADOS, res);
+      console.log(`J${jm} (${tm}) terminada: guardado ${signos.join(",")}`);
+    }
+  }
 }
+
+if (DRY) console.log("\n--dry-run: no se ha escrito nada.");

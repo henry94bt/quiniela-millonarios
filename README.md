@@ -22,14 +22,15 @@ Hay tres sitios, y cada uno guarda una cosa distinta:
 |---|---|---|
 | Los 14 partidos de la jornada en curso | `jornada.json` | un bot, dos veces al día |
 | Los partidos de las jornadas ya pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
-| Las apuestas y los resultados | la hoja de Google | el formulario, según los va mandando cada uno |
+| Los resultados de cada jornada | `resultados.json` | el mismo bot, al terminarse los partidos |
+| **Las apuestas** | la hoja de Google | el formulario, según las manda cada uno |
 
-El dashboard junta los tres: los signos salen de la hoja y los nombres de los equipos
-de los dos JSON. Por eso las apuestas se van acumulando solas jornada tras jornada sin
-que nadie tenga que copiar nada.
+Lo único que hay que meter a mano son **las apuestas**. Todo lo demás se actualiza solo.
+El dashboard junta las cuatro cosas: los signos de cada uno salen de la hoja, y los
+partidos y los resultados de los JSON del repo.
 
-El **resultado** de cada jornada se mete por el mismo formulario, poniendo `Resultado`
-en el campo del nombre. Hasta que no llega esa fila, la jornada cuenta como no jugada.
+Si alguna vez el resultado automático viniera mal, se puede corregir mandando el
+formulario con `Resultado` en el nombre: esa fila manda sobre la del bot.
 
 ## 1. La hoja de cálculo
 
@@ -166,8 +167,7 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
 
 ## 6. El flujo de cada jornada
 
-1. Metes en la hoja las 14 filas de la jornada nueva con `local`, `visitante` y
-   `resultado` **vacío**.
+1. No haces nada: los partidos de la jornada nueva aparecen solos.
 2. Pasas el enlace de `boleto.html` al grupo. Cada uno marca sus 14 signos.
 3. Cada jugador pulsa **Guardar apuesta** y ya está: se escribe sola en la hoja. (Si el
    formulario no está configurado, el botón es **Enviar por WhatsApp** y manda un código
@@ -181,8 +181,8 @@ Cada `git push` a `main` republica el sitio. No hay build: lo que subes es lo qu
    - La tabla en pantalla es la vista rápida para ir metiéndolas en **TuLotero**: las
      filas donde los tres coinciden salen resaltadas.
    - Cualquier casilla se corrige tocándola (`1 → X → 2 → vacío`).
-5. Cuando se juegue la jornada, rellenas `resultado` en la hoja.
-6. El dashboard se actualiza solo al recargar.
+5. Cuando se juegue la jornada, **tampoco haces nada**: el bot recoge los resultados del
+   marcador en cuanto termina el último partido, y el dashboard se actualiza solo.
 
 Los signos a medio rellenar se guardan en el navegador (`localStorage`), así que si
 alguien cierra la página a mitad no pierde lo marcado.

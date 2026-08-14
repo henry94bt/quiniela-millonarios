@@ -193,12 +193,24 @@ function demoRows() {
 function cargarCarteles() {
   const pedir = (u) =>
     fetch(u + "?v=" + Date.now()).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  return Promise.all([pedir("jornada.json"), pedir("historico.json")]).then(([act, hist]) => {
+  return Promise.all([
+    pedir("jornada.json"),
+    pedir("historico.json"),
+    pedir("resultados.json"),
+  ]).then(([act, hist, res]) => {
     const mapa = new Map();
     (Array.isArray(hist) ? hist : []).forEach((h) => {
       mapa.set(h.jornada, { temporada: h.temporada, partidos: h.partidos || [] });
     });
     if (act) mapa.set(act.jornada, { temporada: act.temporada, partidos: act.partidos || [] });
+
+    // Resultados que el bot ya ha recogido del marcador al terminar la jornada.
+    const resultados = new Map();
+    (Array.isArray(res) ? res : []).forEach((r) => {
+      const signos = String(r.signos || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
+      if (signos.length) resultados.set(r.jornada, signos);
+    });
+    mapa.resultados = resultados;
     return mapa;
   });
 }
@@ -233,10 +245,14 @@ function filasDesdeRespuestas(data, carteles) {
     j.n = Math.max(j.n, signos.length);
   });
 
+  const auto = carteles.resultados || new Map();
   const filas = [];
   [...porJornada.keys()].sort((a, b) => a - b).forEach((jornada) => {
     const j = porJornada.get(jornada);
     const cartel = carteles.get(jornada) || { temporada: "", partidos: [] };
+    // El resultado lo pone el bot al acabar la jornada. Si además alguien lo
+    // manda por el formulario, manda el suyo: sirve para corregir a mano.
+    const oficial = auto.get(jornada) || null;
     for (let i = 0; i < j.n; i++) {
       const p = cartel.partidos[i] || {};
       const fila = {
@@ -245,7 +261,7 @@ function filasDesdeRespuestas(data, carteles) {
         partido: i + 1,
         local: p.local || "Partido " + (i + 1),
         visitante: p.visitante || "",
-        resultado: (j.resultado && j.resultado[i]) || "",
+        resultado: (j.resultado && j.resultado[i]) || (oficial && oficial[i]) || "",
       };
       PLAYERS.forEach((pl) => { fila[pl.key] = (j.picks[pl.key] && j.picks[pl.key][i]) || ""; });
       filas.push(fila);

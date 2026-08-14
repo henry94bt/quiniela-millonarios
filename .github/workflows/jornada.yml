@@ -23,12 +23,12 @@ jobs:
 
       - name: Publicar si han cambiado
         run: |
-          if git diff --quiet -- jornada.json historico.json; then
+          if git diff --quiet -- jornada.json historico.json resultados.json; then
             echo "Sin cambios que publicar."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jornada.json historico.json
-          git commit -m "Jornada $(node -p "require('./jornada.json').jornada"): partidos actualizados"
+          git add jornada.json historico.json resultados.json
+          git commit -m "Datos al día: jornada $(node -p "require('./jornada.json').jornada")"
           git push
