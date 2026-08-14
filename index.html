@@ -146,7 +146,7 @@ const CSV_URL = "PEGA_AQUI_LA_URL_CSV";
    mete por el mismo formulario poniendo "Resultado" en el nombre.
    Si se deja vacío, se sigue leyendo CSV_URL con el formato antiguo (una fila
    por partido). Ver README, sección 4. */
-const CSV_APUESTAS = "";
+const CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkLp7AXEddv38iExHBbkEWbKnMj5cXV6OFISGILBMVB61x04NkCRYlXAdR9tOdvQ1H1Pfmn0Di5VbK/pub?output=csv";
 
 /* ------------------------------------------------------------ */
 
@@ -252,7 +252,7 @@ function filasDesdeRespuestas(data, carteles) {
     Object.keys(r).forEach((k) => { o[normKey(k)] = r[k]; });
     const jornada = parseInt(o.jornada, 10);
     if (isNaN(jornada)) return;
-    const signos = String(o.signos || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
+    const signos = String(o.signos || o.signo || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
     if (!signos.length) return;
 
     const nombre = String(o.nombre || "").trim().toLowerCase();

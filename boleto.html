@@ -150,12 +150,12 @@ var CSV_URL = "PEGA_AQUI_LA_URL_CSV";
 var WHATSAPP_TO = "";
 
 /* CSV de la pestaña de respuestas del Google Form, si se llega a montar. */
-var CSV_APUESTAS = "";
+var CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkLp7AXEddv38iExHBbkEWbKnMj5cXV6OFISGILBMVB61x04NkCRYlXAdR9tOdvQ1H1Pfmn0Di5VbK/pub?output=csv";
 
 /* Google Form. Con esto puesto, "Guardar" escribe la apuesta directamente y
    ya no hace falta ni WhatsApp ni pegar nada. Ver README, sección 4. */
-var FORM_ACTION = "";   // .../formResponse
-var FORM_CAMPOS = { jornada: "", nombre: "", signos: "" };
+var FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSeI2hNbrTgkF8m7M4pCJP-a2bkFBGq1iycy6hoAMNUlk_xXHg/formResponse";
+var FORM_CAMPOS = { jornada: "entry.1366000101", nombre: "entry.190246688", signos: "entry.408769673" };
 
 /* Donde se guardan las apuestas sin depender de nada de fuera. */
 var URL_EDITAR_APUESTAS =
@@ -322,7 +322,7 @@ function cargarGuardadas() {
           var o = {};
           Object.keys(r).forEach(function (k) { o[normKey(k)] = r[k]; });
           if (parseInt(o.jornada, 10) !== state.jornada) return;
-          var signos = String(o.signos || "").split(/[,\s]+/).map(normSign)
+          var signos = String(o.signos || o.signo || "").split(/[,\s]+/).map(normSign)
                          .filter(function (s) { return s !== ""; });
           var quien = meter(o.nombre, signos);
           if (quien) visto[quien] = true;
