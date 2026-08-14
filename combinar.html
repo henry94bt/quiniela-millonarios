@@ -105,6 +105,16 @@ var CSV_URL = "PEGA_AQUI_LA_URL_CSV";
    apuestas aparecen solas y no hace falta pegar nada. README, sección 4. */
 var CSV_APUESTAS = "";
 
+/* Los mismos valores que en boleto.html. Con esto, "Guardar las 3" manda a la
+   hoja las columnas completas sin pasar por el boleto de cada uno: sirve para
+   cuando te llegan por WhatsApp y las juntas tú. */
+var FORM_ACTION = "";   // .../formResponse
+var FORM_CAMPOS = { jornada: "", nombre: "", signos: "" };
+
+function formListo(){
+  return !!FORM_ACTION && !!FORM_CAMPOS.jornada && !!FORM_CAMPOS.nombre && !!FORM_CAMPOS.signos;
+}
+
 /* ------------------------------------------------------------ */
 
 var PLAYERS = [
@@ -336,12 +346,22 @@ function render(){
   html+='<footer><a href="index.html">← Dashboard</a><a href="boleto.html">Rellenar boleto →</a></footer>';
 
   var totales=PLAYERS.map(function(p){ return p.name+" "+state.cols[p.key].filter(Boolean).length; }).join(" · ");
+  var completas=PLAYERS.filter(function(p){ return completa(p.key); }).length;
   html+='<div class="dock"><div class="inner">'+
         '<div class="status"><span>'+totales+'</span><span><b>'+n+'</b> partidos</span></div>'+
         '<div class="actions">'+
         '<button class="act" id="tsv" '+(algunaCompleta()?"":"disabled")+'>Copiar para la hoja</button>'+
-        '<button class="act primary" id="wa" '+(algunaCompleta()?"":"disabled")+'>Enviar las 3 por WhatsApp</button>'+
-        '</div></div></div>';
+        (formListo()
+          ? '<button class="act primary" id="guardar" '+(completas?"":"disabled")+'>'+
+            'Guardar '+(completas===1?"1 apuesta":"las "+completas)+'</button>'
+          : '<button class="act primary" id="wa" '+(algunaCompleta()?"":"disabled")+'>Enviar las 3 por WhatsApp</button>')+
+        '</div>'+
+        (formListo()
+          ? '<div class="hint" style="margin-top:8px">También puedes mandarlas por '+
+            '<a href="#" id="walink" style="color:var(--s1)">WhatsApp</a>.</div>'
+          : '<div class="hint" style="margin-top:8px">Para guardarlas directamente en la hoja hay que '+
+            'configurar el formulario (README, sección 4).</div>')+
+        '</div></div>';
 
   app.innerHTML=html;
 
@@ -368,6 +388,42 @@ function render(){
   });
   var wa=document.getElementById("wa");
   if(wa) wa.addEventListener("click", enviarWhatsApp);
+  var walink=document.getElementById("walink");
+  if(walink) walink.addEventListener("click", function(e){ e.preventDefault(); enviarWhatsApp(); });
+  var guardar=document.getElementById("guardar");
+  if(guardar) guardar.addEventListener("click", onGuardar);
+}
+
+/* ---------- guardar las columnas completas en el formulario ---------- */
+function onGuardar(){
+  var pendientes=PLAYERS.filter(function(p){ return completa(p.key); });
+  if(!pendientes.length){ toast("Ninguna apuesta está completa"); return; }
+
+  var btn=document.getElementById("guardar");
+  btn.disabled=true; btn.textContent="Guardando…";
+
+  // De una en una y en orden, para que en la hoja queden en el mismo orden en
+  // que se ven aquí y no dependa de cuál conteste antes.
+  var hechas=0;
+  function siguiente(){
+    if(hechas>=pendientes.length){
+      toast("Guardadas "+hechas+" apuesta(s) de la J"+state.jornada);
+      btn.textContent="Guardar otra vez"; btn.disabled=false;
+      return;
+    }
+    var p=pendientes[hechas];
+    var fd=new FormData();
+    fd.append(FORM_CAMPOS.jornada, String(state.jornada));
+    fd.append(FORM_CAMPOS.nombre, p.name);
+    fd.append(FORM_CAMPOS.signos, state.cols[p.key].join(","));
+    fetch(FORM_ACTION,{ method:"POST", mode:"no-cors", body:fd })
+      .then(function(){ hechas++; siguiente(); })
+      .catch(function(){
+        toast("Falló al guardar la de "+p.name+". ¿Tienes conexión?");
+        btn.textContent="Reintentar"; btn.disabled=false;
+      });
+  }
+  siguiente();
 }
 
 /* ---------- portapapeles ---------- */

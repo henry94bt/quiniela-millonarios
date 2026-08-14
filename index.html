@@ -487,6 +487,9 @@ function BiasBar({ label, dist, total }) {
 
 function LastTicket({ j }) {
   if (!j) return <Empty />;
+  // Si la jornada aún no se ha jugado no hay nada que sumar: enseñamos las
+  // apuestas, pero sin la fila de totales, que serían tres ceros engañosos.
+  const jugada = j.played;
   return (
     <div className="panel">
       <table>
@@ -517,16 +520,18 @@ function LastTicket({ j }) {
               })}
             </tr>
           ))}
-          <tr>
-            <td></td>
-            <td className="tot">TOTAL</td>
-            <td></td>
-            {PLAYERS.map((pl) => (
-              <td key={pl.key} className="center">
-                <span className="sign" style={{ background: pl.color }}>{j.scores[pl.key]}</span>
-              </td>
-            ))}
-          </tr>
+          {jugada && (
+            <tr>
+              <td></td>
+              <td className="tot">TOTAL</td>
+              <td></td>
+              {PLAYERS.map((pl) => (
+                <td key={pl.key} className="center">
+                  <span className="sign" style={{ background: pl.color }}>{j.scores[pl.key]}</span>
+                </td>
+              ))}
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -605,6 +610,9 @@ function App() {
     name: p.name, color: p.color, values: st.jugadas.map((j) => j.scores[p.key]),
   }));
   const legend = PLAYERS.map((p) => ({ label: p.name, color: p.color }));
+  // Mientras no se haya jugado nada, en vez de un hueco enseñamos el boleto de
+  // la jornada en curso, que es lo único que hay.
+  const boleto = st.ultimo || st.pendiente;
 
   return (
     <div className="wrap">
@@ -624,10 +632,21 @@ function App() {
         </div>
       )}
 
-      <div className="grid cards">
-        {st.table.map((p, i) => <RankCard key={p.key} p={p} i={i} />)}
-      </div>
+      {st.jugadas.length === 0 && st.pendiente && (
+        <div className="banner" style={{ background: "rgba(74,157,224,.10)", borderColor: "rgba(74,157,224,.35)", color: "#8FC4EE" }}>
+          Todavía no hay ninguna jornada con resultados. La clasificación y las gráficas
+          aparecerán en cuanto se mande el resultado de la J{st.pendiente.jornada}
+          {" "}(por el mismo boleto, poniendo <b>Resultado</b> en el nombre).
+        </div>
+      )}
 
+      {st.jugadas.length > 0 && (
+        <div className="grid cards">
+          {st.table.map((p, i) => <RankCard key={p.key} p={p} i={i} />)}
+        </div>
+      )}
+
+      {st.jugadas.length > 0 && (
       <section>
         <h2>Evolución acumulada</h2>
         <div className="panel">
@@ -635,7 +654,9 @@ function App() {
           <LineChart labels={labels} series={cumulSeries} />
         </div>
       </section>
+      )}
 
+      {st.jugadas.length > 0 && (
       <section>
         <h2>Aciertos por jornada</h2>
         <div className="panel">
@@ -643,7 +664,9 @@ function App() {
           <GroupedBars labels={labels} series={perJornada} />
         </div>
       </section>
+      )}
 
+      {st.jugadas.length > 0 && (
       <section>
         <h2>Sesgo de signo</h2>
         <div className="panel">
@@ -655,10 +678,14 @@ function App() {
           </div>
         </div>
       </section>
+      )}
 
       <section>
-        <h2>Último boleto {st.ultimo ? `· J${st.ultimo.jornada}` : ""}</h2>
-        <LastTicket j={st.ultimo} />
+        <h2>
+          {st.ultimo ? `Último boleto · J${st.ultimo.jornada}`
+            : boleto ? `Boleto de la jornada · J${boleto.jornada}` : "Último boleto"}
+        </h2>
+        <LastTicket j={boleto} />
       </section>
 
       <footer>

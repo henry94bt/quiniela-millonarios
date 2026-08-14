@@ -108,12 +108,17 @@ una hoja y `combinar.html` las recoge solas.
 
 ### Rellenar las constantes
 
-En `boleto.html`:
+En **`boleto.html`** y en **`combinar.html`** (las mismas dos líneas en los dos):
 
 ```js
 var FORM_ACTION = "https://docs.google.com/forms/d/e/TU_ID/formResponse";
 var FORM_CAMPOS = { jornada: "entry.111", nombre: "entry.222", signos: "entry.333" };
 ```
+
+En el boleto sale el botón **Guardar apuesta**, que manda la de quien lo rellena. En el
+combinador sale **Guardar las 3**, que manda de golpe todas las columnas completas:
+sirve para cuando te llegan por WhatsApp y las juntas tú. Mientras estas constantes
+estén vacías, en su lugar salen los botones de WhatsApp de siempre.
 
 Publica la hoja de respuestas como CSV (sección 2, pero eligiendo la pestaña de
 respuestas) y pega esa URL en **`combinar.html`** y en **`index.html`**:
