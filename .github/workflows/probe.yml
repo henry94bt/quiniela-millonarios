@@ -1,0 +1,17 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿Llegan los JSON de quinielista y dataradar?
+        run: |
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+          for u in \
+            "https://static.quinielista.es/quinielista/jornada_quiniela.json" \
+            "https://static.dataradar.es/marcador/json/partidos.json" \
+          ; do
+            code=$(curl -s -m 25 -o /tmp/o -w "%{http_code}" -H "User-Agent: $UA" "$u" || echo TIMEOUT)
+            echo "RESULT code=$code bytes=$(wc -c < /tmp/o) :: $u"
+            head -c 220 /tmp/o; echo; echo "---"
+          done
