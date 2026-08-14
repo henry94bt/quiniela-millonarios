@@ -159,9 +159,23 @@ if (!esJornadaNueva) {
 // pillarla cuando termina. Como cada partido dice a qué jornada pertenece, no
 // hay que adivinar nada: se guarda bajo la suya.
 const marcador = await pedir(URL_MARCADOR);
-const partidosM = (Array.isArray(marcador) ? marcador : [])
+const todosM = Array.isArray(marcador) ? marcador : [];
+const partidosM = todosM
   .filter((p) => p && p.orden >= 1 && p.orden <= 14)
   .sort((a, b) => a.orden - b.orden);
+
+/* El Pleno al 15 son los goles de cada equipo, y M es "3 o más". La fuente los
+   da pegados ("01", "12"…), así que se separan y se recorta a M. */
+function plenoDelMarcador() {
+  const p15 = todosM.filter((p) => p && p.orden === 15)[0];
+  if (!p15 || p15.estado !== "Finalizado") return "";
+  const golesA = (n) => (n === "0" || n === "1" || n === "2" ? n : "M");
+  const bruto = String(p15.signo_goles || "").trim();
+  if (bruto.length >= 2) return golesA(bruto[0]) + "-" + golesA(bruto[1]);
+  const l = p15.local_goles, v = p15.visitante_goles;
+  if (l == null || v == null) return "";
+  return golesA(String(Math.min(Number(l), 3))) + "-" + golesA(String(Math.min(Number(v), 3)));
+}
 
 if (partidosM.length !== 14) {
   console.log(`El marcador trae ${partidosM.length} partidos de los 14: no guardo resultados.`);
@@ -180,10 +194,12 @@ if (partidosM.length !== 14) {
     if (yaEsta) {
       console.log(`J${jm} (${tm}): el resultado ya estaba guardado.`);
     } else {
-      res.push({ temporada: tm, jornada: jm, signos: signos.join(",") });
+      const pleno = plenoDelMarcador();
+      res.push({ temporada: tm, jornada: jm, signos: signos.join(","), pleno });
       res.sort((a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada);
       escribir(RESULTADOS, res);
-      console.log(`J${jm} (${tm}) terminada: guardado ${signos.join(",")}`);
+      console.log(`J${jm} (${tm}) terminada: guardado ${signos.join(",")}` +
+                  (pleno ? ` | pleno ${pleno}` : " | sin pleno"));
     }
   }
 }

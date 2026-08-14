@@ -90,6 +90,7 @@
   .sg[data-s="X"]{background:var(--sx);border-color:transparent;color:#0C1512}
   .sg[data-s="2"]{background:var(--s2);border-color:transparent;color:#0C1512}
   tr.igual{background:rgba(53,196,107,.06)}
+  .plenocell{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--txt)}
   .vacio{color:var(--muted);font-size:13px;line-height:1.5;padding:6px 0}
 
   .mini{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
@@ -157,9 +158,6 @@ var CSV_APUESTAS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTkLp7AXEddv
 var FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSeI2hNbrTgkF8m7M4pCJP-a2bkFBGq1iycy6hoAMNUlk_xXHg/formResponse";
 var FORM_CAMPOS = { jornada: "entry.1366000101", nombre: "entry.190246688", signos: "entry.408769673" };
 
-/* Donde se guardan las apuestas sin depender de nada de fuera. */
-var URL_EDITAR_APUESTAS =
-  "https://github.com/henry94bt/quiniela-millonarios/edit/main/apuestas.json";
 
 /* ------------------------------------------------------------ */
 
@@ -171,11 +169,25 @@ var PLAYERS = [
 var SIGNS = ["1", "X", "2"];
 var CICLO = { "": "1", "1": "X", "X": "2", "2": "" };
 
+/* Pleno al 15: goles de cada equipo, donde M es "3 o más". Se guarda pegado a
+   los 14 signos separado por "|", así: "1,X,2,…,1|0-M". Las apuestas viejas no
+   llevan esa parte y siguen valiendo. */
+var GOLES = ["0", "1", "2", "M"];
+function partirSignos(raw) {
+  var p = String(raw == null ? "" : raw).split("|");
+  return {
+    signos: p[0].split(/[,\s]+/).map(normSign).filter(function (s) { return s !== ""; }),
+    pleno: (p[1] || "").trim().toUpperCase(),
+  };
+}
+function plenoValido(p) { return /^[012M]-[012M]$/.test(p || ""); }
+
 var app = document.getElementById("app");
 var state = {
   jornada: null, temporada: "", partidos: [],
-  picks: [], nombre: "", enviado: false,
-  cols: {},            // las tres apuestas de la jornada
+  picks: [], pleno: "", nombre: "", enviado: false,
+  pleno15: null,       // el partido 15
+  cols: {}, plenos: {},   // las tres apuestas de la jornada
   aviso: "", nota: "", pegar: false,
 };
 
@@ -214,6 +226,7 @@ function conRespaldo(motivo) {
     try {
       var d = JSON.parse(req.responseText);
       state.temporada = d.temporada || "";
+      state.pleno15 = d.pleno15 || null;
       boot(d.jornada, d.partidos, motivo ? motivo + ". Partidos de jornada.json." : "");
     } catch (e) { boot(0, [], (motivo || "Error") + ", y jornada.json no se pudo leer"); }
   };
@@ -261,11 +274,13 @@ function boot(jornada, partidos, aviso) {
   state.aviso = aviso || "";
   PLAYERS.forEach(function (p) {
     state.cols[p.key] = state.partidos.map(function () { return ""; });
+    state.plenos[p.key] = "";
   });
   try {
     var s = JSON.parse(localStorage.getItem(storeKey()) || "null");
     if (s && Array.isArray(s.picks) && s.picks.length === state.picks.length) {
       state.picks = s.picks;
+      state.pleno = s.pleno || "";
       state.nombre = s.nombre || "";
       state.enviado = !!s.enviado;
     }
@@ -277,15 +292,17 @@ function boot(jornada, partidos, aviso) {
 function persist() {
   try {
     localStorage.setItem(storeKey(),
-      JSON.stringify({ picks: state.picks, nombre: state.nombre, enviado: state.enviado }));
+      JSON.stringify({ picks: state.picks, pleno: state.pleno,
+                       nombre: state.nombre, enviado: state.enviado }));
   } catch (e) {}
 }
 
 /* ---------- las apuestas ya guardadas ---------- */
-function meter(nombre, signos) {
+function meter(nombre, signos, pleno) {
   var pl = jugadorPorNombre(nombre);
   if (!pl || signos.length !== state.partidos.length) return null;
   state.cols[pl.key] = signos;
+  if (plenoValido(pleno)) state.plenos[pl.key] = pleno;
   return pl.name;
 }
 
@@ -297,23 +314,6 @@ function cargarGuardadas() {
     if (nombres.length) { state.nota = "Ya guardadas: " + nombres.join(", ") + "."; render(); }
   };
 
-  var req = new XMLHttpRequest();
-  req.open("GET", "apuestas.json?v=" + Date.now(), true);
-  req.onload = function () {
-    try {
-      (JSON.parse(req.responseText) || []).forEach(function (a) {
-        if (parseInt(a.jornada, 10) !== state.jornada) return;
-        var signos = String(a.signos || "").split(/[,\s]+/).map(normSign)
-                       .filter(function (s) { return s !== ""; });
-        var quien = meter(a.nombre, signos);
-        if (quien) { visto[quien] = true; if (a.temporada) state.temporada = a.temporada; }
-      });
-      pinta();
-    } catch (e) {}
-  };
-  req.send();
-
-  // Si además hay hoja del formulario, lo de ahí es más reciente y manda.
   if (!isPlaceholder(CSV_APUESTAS)) {
     Papa.parse(CSV_APUESTAS, {
       download: true, header: true, skipEmptyLines: true,
@@ -322,9 +322,8 @@ function cargarGuardadas() {
           var o = {};
           Object.keys(r).forEach(function (k) { o[normKey(k)] = r[k]; });
           if (parseInt(o.jornada, 10) !== state.jornada) return;
-          var signos = String(o.signos || o.signo || "").split(/[,\s]+/).map(normSign)
-                         .filter(function (s) { return s !== ""; });
-          var quien = meter(o.nombre, signos);
+          var t = partirSignos(o.signos || o.signo);
+          var quien = meter(o.nombre, t.signos, t.pleno);
           if (quien) visto[quien] = true;
         });
         pinta();
@@ -338,8 +337,8 @@ function cargarGuardadas() {
 function importar(texto) {
   var re = /\[\s*J(\d+)\s*\|([^|\]]+)\|([^\]]+)\]/gi, m, n = 0;
   while ((m = re.exec(texto)) !== null) {
-    var signos = m[3].split(/[,\s]+/).map(normSign).filter(function (s) { return s !== ""; });
-    if (meter(m[2], signos)) n++;
+    var t = partirSignos(m[3]);
+    if (meter(m[2], t.signos, t.pleno)) n++;
   }
   if (n) { state.nota = "Importadas " + n + " del mensaje."; render(); toast("Importadas " + n); }
   else if (texto.trim()) { toast("No encontré ningún código válido"); }
@@ -352,12 +351,6 @@ var completaLa = function (key) {
 var cuantasCompletas = function () {
   return PLAYERS.filter(function (p) { return completaLa(p.key); }).length;
 };
-function bloqueParaRepo() {
-  return PLAYERS.filter(function (p) { return completaLa(p.key); }).map(function (p) {
-    return '  { "temporada": "' + (state.temporada || "") + '", "jornada": ' + state.jornada +
-           ', "nombre": "' + p.name + '", "signos": "' + state.cols[p.key].join(",") + '" },';
-  }).join("\n");
-}
 function tsvTres() {
   return state.partidos.map(function (_, i) {
     return PLAYERS.map(function (p) { return state.cols[p.key][i] || ""; }).join("\t");
@@ -395,6 +388,21 @@ function render() {
                   '" data-i="' + i + '" type="button" aria-pressed="' + (sel === s) + '">' + s + '</button>';
          }).join("") + '</div></div>';
   });
+  if (state.pleno15) {
+    var pl = state.pleno.split("-");
+    h += '<h3 style="margin-top:18px">Pleno al 15 · goles de cada equipo</h3>';
+    [["l", state.pleno15.local, pl[0] || ""], ["v", state.pleno15.visitante, pl[1] || ""]]
+      .forEach(function (lado) {
+        h += '<div class="row' + (lado[2] ? " done" : "") + '">' +
+             '<div class="idx">' + (lado[0] === "l" ? "L" : "V") + '</div>' +
+             '<div class="teams">' + esc(lado[1]) + '</div><div class="btns">' +
+             GOLES.map(function (g) {
+               return '<button class="sb' + (lado[2] === g ? " on" : "") + '" data-g="' + g +
+                      '" data-lado="' + lado[0] + '" type="button">' + g + '</button>';
+             }).join("") + '</div></div>';
+      });
+    h += '<div class="vacio">M es 3 goles o más. Es opcional: se puede guardar sin rellenarlo.</div>';
+  }
   h += '</div>';
 
   /* ---- columna 2: las tres de la jornada ---- */
@@ -425,12 +433,18 @@ function render() {
       });
       h += '</tr>';
     });
+    if (state.pleno15) {
+      h += '<tr><td class="cnum">15</td><td class="cmatch">' + esc(state.pleno15.local) +
+           ' <span class="vs">–</span> ' + esc(state.pleno15.visitante) + '</td>';
+      PLAYERS.forEach(function (p) {
+        h += '<td class="cell plenocell">' + (state.plenos[p.key] || "·") + '</td>';
+      });
+      h += '</tr>';
+    }
     h += '</tbody></table>';
   }
 
   h += '<div class="mini">' +
-       '<button id="repo"' + (cuantasCompletas() ? "" : " disabled") + '>Copiar para guardar</button>' +
-       '<a href="' + URL_EDITAR_APUESTAS + '" target="_blank" rel="noopener">Abrir apuestas.json</a>' +
        '<button id="tsv"' + (cuantasCompletas() ? "" : " disabled") + '>Copiar 3 columnas</button>' +
        '<button id="verpegar">Pegar de WhatsApp</button>' +
        '</div>';
@@ -466,10 +480,20 @@ function conectar() {
   var nombre = document.getElementById("nombre");
   if (nombre) nombre.addEventListener("input", function () { state.nombre = nombre.value; persist(); });
 
-  Array.prototype.forEach.call(app.querySelectorAll(".sb"), function (b) {
+  Array.prototype.forEach.call(app.querySelectorAll(".sb[data-i]"), function (b) {
     b.addEventListener("click", function () {
       var i = +b.dataset.i, s = b.dataset.s;
       state.picks[i] = state.picks[i] === s ? "" : s;
+      state.enviado = false;
+      persist(); render();
+    });
+  });
+  Array.prototype.forEach.call(app.querySelectorAll(".sb[data-g]"), function (b) {
+    b.addEventListener("click", function () {
+      var p = state.pleno.split("-"), l = p[0] || "", v = p[1] || "";
+      if (b.dataset.lado === "l") l = (l === b.dataset.g ? "" : b.dataset.g);
+      else v = (v === b.dataset.g ? "" : b.dataset.g);
+      state.pleno = (l || v) ? l + "-" + v : "";
       state.enviado = false;
       persist(); render();
     });
@@ -488,9 +512,6 @@ function conectar() {
   });
   if ((el = document.getElementById("wa"))) el.addEventListener("click", enviarWhatsApp);
   if ((el = document.getElementById("guardar"))) el.addEventListener("click", onGuardar);
-  if ((el = document.getElementById("repo"))) el.addEventListener("click", function () {
-    copiar(bloqueParaRepo(), "Copiado. Pégalo en apuestas.json, debajo del [");
-  });
   if ((el = document.getElementById("tsv"))) el.addEventListener("click", function () {
     copiar(tsvTres(), "3 columnas copiadas");
   });
@@ -505,7 +526,8 @@ function conectar() {
 
 /* ---------- acciones ---------- */
 function codigo() {
-  return "[J" + state.jornada + "|" + (state.nombre.trim() || "sin nombre") + "|" + state.picks.join(",") + "]";
+  return "[J" + state.jornada + "|" + (state.nombre.trim() || "sin nombre") + "|" +
+         state.picks.join(",") + (plenoValido(state.pleno) ? "|" + state.pleno : "") + "]";
 }
 function enviarWhatsApp() {
   var lineas = state.partidos.map(function (p, i) {
@@ -526,14 +548,15 @@ function onGuardar() {
   var fd = new FormData();
   fd.append(FORM_CAMPOS.jornada, String(state.jornada));
   fd.append(FORM_CAMPOS.nombre, nombre);
-  fd.append(FORM_CAMPOS.signos, state.picks.join(","));
+  fd.append(FORM_CAMPOS.signos, state.picks.join(",") +
+    (plenoValido(state.pleno) ? "|" + state.pleno : ""));
 
   // Google no deja leer su respuesta desde otro dominio (no-cors): sabemos si
   // salió, no lo que contestó. Si falla la red, sí lo vemos.
   fetch(FORM_ACTION, { method: "POST", mode: "no-cors", body: fd })
     .then(function () {
       state.enviado = true;
-      meter(nombre, state.picks.slice());
+      meter(nombre, state.picks.slice(), state.pleno);
       persist(); toast("Guardada, " + nombre); render();
     })
     .catch(function () {

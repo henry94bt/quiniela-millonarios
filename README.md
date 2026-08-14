@@ -20,32 +20,33 @@ Todo vive en el propio repo. No hay nada que configurar para que funcione:
 | Los 14 partidos de la jornada en curso | `jornada.json` | un bot, dos veces al día |
 | Los partidos de las jornadas pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
 | Los resultados de cada jornada | `resultados.json` | el mismo bot, al acabar los partidos |
-| **Las apuestas** | `apuestas.json` | **a mano, una vez por jornada** |
+| **Las apuestas** | la hoja del formulario | cada uno, desde el boleto |
 
-Lo único que se mete a mano son las apuestas.
+Nadie tiene que tocar nada: cada uno guarda la suya desde el boleto y el resto va solo.
 
 ## El flujo de cada jornada
 
 1. Los partidos de la jornada nueva **aparecen solos**.
-2. Pasas el enlace del boleto al grupo. Cada uno marca sus 14 y le da a
-   **Enviar por WhatsApp**, que manda un código tipo `[J9|Adri|1,X,2,...]`.
-3. Abres el boleto, pulsas **Pegar de WhatsApp** y pegas los mensajes — vale la
-   conversación entera, solo busca los códigos. Las tres apuestas quedan en la tabla de
-   al lado, con las filas donde coincidís los tres resaltadas: esa es la vista para ir
-   metiéndolas en TuLotero.
-4. Pulsas **Copiar para guardar**, luego **Abrir apuestas.json**, pegas el bloque justo
-   debajo del `[` y le das a *Commit changes*. Ya están guardadas.
-5. Cuando se juegue, **no hay que hacer nada**: los resultados se recogen solos y el
+2. Cada uno abre el boleto, marca sus 14 signos (y el Pleno al 15 si quiere) y pulsa
+   **Guardar apuesta**. Se escribe sola en la hoja.
+3. En el mismo boleto, al lado, se ven las tres apuestas juntas con las filas donde
+   coincidís resaltadas: esa es la vista para echarla en TuLotero.
+4. Cuando se juegue, **no hay que hacer nada**: los resultados se recogen solos y el
    dashboard se actualiza.
 
 Los signos a medio marcar se guardan en el navegador, así que si alguien cierra la
-página a mitad no pierde lo hecho.
+página a mitad no pierde lo hecho. Se puede reenviar las veces que haga falta: **gana la
+última** de cada jugador para esa jornada.
 
-## Quitarse los pasos 2, 3 y 4 (opcional)
+El **Pleno al 15** son los goles de cada equipo, donde `M` es 3 o más. Es opcional y no
+cuenta para los 14 aciertos; se guarda pegado a los signos (`1,X,2,…,1|2-M`) y el bot
+recoge también su resultado.
 
-Todo eso existe porque una web en GitHub Pages no puede escribir en ningún sitio. Con un
-**Google Form** de por medio, cada uno le da a *Guardar apuesta* en su móvil y se acabó:
-ni WhatsApp, ni pegar, ni commits.
+## El formulario (ya montado)
+
+Una web en GitHub Pages no puede escribir en ningún sitio, así que el boleto manda las
+apuestas a un **Google Form** que las vuelca en una hoja. Nadie ve ese formulario: es
+fontanería. Si algún día hay que rehacerlo:
 
 1. En [forms.google.com](https://forms.google.com), formulario en blanco con tres
    preguntas de **Respuesta corta**, tituladas exactamente `jornada`, `nombre`, `signos`.
@@ -120,5 +121,3 @@ directamente en el boleto.
 - Las páginas hay que abrirlas **por la URL publicada**, no con doble clic sobre el
   archivo: con `file://` el navegador bloquea la lectura de los `.json` y no cargan los
   partidos. Si pasa, la propia página lo avisa.
-- `semilla-J1.csv` son las apuestas de la J1 en el formato de la hoja del formulario, por
-  si algún día se monta.

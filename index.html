@@ -218,8 +218,7 @@ function cargarCarteles() {
     pedir("jornada.json"),
     pedir("historico.json"),
     pedir("resultados.json"),
-    pedir("apuestas.json"),
-  ]).then(([act, hist, res, apu]) => {
+  ]).then(([act, hist, res]) => {
     const mapa = new Map();
     (Array.isArray(hist) ? hist : []).forEach((h) => {
       mapa.set(h.jornada, { temporada: h.temporada, partidos: h.partidos || [] });
@@ -233,9 +232,6 @@ function cargarCarteles() {
       if (signos.length) resultados.set(r.jornada, signos);
     });
     mapa.resultados = resultados;
-    // Apuestas guardadas en el propio repo. Es la vía sin depender de nada de
-    // fuera; si además hay hoja, lo de la hoja manda por ser más reciente.
-    mapa.apuestas = Array.isArray(apu) ? apu : [];
     return mapa;
   });
 }
@@ -745,11 +741,11 @@ function App() {
   const [state, setState] = React.useState({ status: "loading", rows: [], demo: false, error: "" });
 
   React.useEffect(() => {
-    // Vía normal: apuestas del repo (apuestas.json) y, si además hay una hoja
-    // configurada, lo que llegue por ahí, que gana por ser lo más reciente.
+    // Las apuestas salen de la hoja del formulario; los partidos y los
+    // resultados, de los JSON del repo.
     cargarCarteles().then((carteles) => {
       const listo = (data) => {
-        const rows = filasDesdeRespuestas((carteles.apuestas || []).concat(data || []), carteles);
+        const rows = filasDesdeRespuestas(data || [], carteles);
         if (rows.length) setState({ status: "ready", rows, demo: false, error: "" });
         else seguirConLoAntiguo();
       };
