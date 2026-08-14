@@ -1,0 +1,17 @@
+{
+  "name": "La Quiniela · Henry, Pedro y Adri",
+  "short_name": "Quiniela",
+  "start_url": "boleto.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0C1512",
+  "theme_color": "#0C1512",
+  "icons": [
+    {
+      "src": "icono.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

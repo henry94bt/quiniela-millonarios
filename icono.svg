@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Quiniela">
+  <rect width="512" height="512" rx="112" fill="#0C1512"/>
+  <!-- las tres casillas de la quiniela: 1, X, 2 -->
+  <g font-family="'JetBrains Mono',ui-monospace,monospace" font-weight="700" font-size="118" text-anchor="middle">
+    <rect x="70"  y="152" width="120" height="120" rx="26" fill="#35C46B"/>
+    <text x="130" y="234" fill="#0C1512">1</text>
+
+    <rect x="196" y="152" width="120" height="120" rx="26" fill="#152722" stroke="#1F3830" stroke-width="3"/>
+    <text x="256" y="234" fill="#7E9990">X</text>
+
+    <rect x="322" y="152" width="120" height="120" rx="26" fill="#152722" stroke="#1F3830" stroke-width="3"/>
+    <text x="382" y="234" fill="#7E9990">2</text>
+  </g>
+  <g font-family="Archivo,system-ui,sans-serif" text-anchor="middle">
+    <text x="256" y="352" fill="#E8F2EE" font-size="70" font-weight="800" letter-spacing="-1">LA</text>
+    <text x="256" y="424" fill="#35C46B" font-size="70" font-weight="800" letter-spacing="-1">QUINIELA</text>
+  </g>
+</svg>
