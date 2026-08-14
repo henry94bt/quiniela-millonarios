@@ -94,6 +94,21 @@
   .center{text-align:center}
   .tot{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
 
+  .signotab{width:100%;border-collapse:collapse;font-size:13px}
+  .signotab th{padding:0 6px 9px;font-size:10.5px}
+  .signotab td{padding:8px 6px}
+  .signotab .quien{font-weight:600;font-size:14px;white-space:nowrap}
+  .sgcell{text-align:center;line-height:1.25}
+  .sgpct{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px}
+  .sgraw{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted)}
+  .sgnada{color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px}
+  .stat{background:var(--panel-2);border-radius:11px;padding:13px 14px}
+  .stat .lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .stat .val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;margin-top:6px;line-height:1.1}
+  .stat .pie{font-size:12px;color:var(--muted);margin-top:4px}
+
   .loading{padding:60px 0;text-align:center;color:var(--muted);font-size:14px}
   footer{margin-top:44px;color:var(--muted);font-size:12px;display:flex;gap:14px;flex-wrap:wrap}
   footer a{color:var(--s1);text-decoration:none}
@@ -356,11 +371,73 @@ function buildStats(rows) {
     cumul[pl.key] = jugadas.map((j) => (acc += j.scores[pl.key]));
   });
 
+  /* ---------- estadísticas ---------- */
+
+  // Quién gana cada jornada (empatados, ganan los dos) y racha desde el final.
+  const ganadoresPorJornada = jugadas.map((j) => {
+    const max = Math.max(...PLAYERS.map((p) => j.scores[p.key]));
+    return PLAYERS.filter((p) => j.scores[p.key] === max).map((p) => p.key);
+  });
+  const ganadas = {}, racha = {};
+  PLAYERS.forEach((p) => {
+    ganadas[p.key] = ganadoresPorJornada.filter((g) => g.indexOf(p.key) !== -1).length;
+    let n = 0;
+    for (let i = ganadoresPorJornada.length - 1; i >= 0; i--) {
+      if (ganadoresPorJornada[i].indexOf(p.key) === -1) break;
+      n++;
+    }
+    racha[p.key] = n;
+  });
+
+  // Acierto según el signo que puso cada uno: enseña quién se atreve con las
+  // X y le sale bien, que es donde se gana o se pierde una quiniela.
+  const porSigno = {};
+  PLAYERS.forEach((p) => {
+    porSigno[p.key] = { "1": { ok: 0, n: 0 }, X: { ok: 0, n: 0 }, "2": { ok: 0, n: 0 } };
+  });
+  jugadas.forEach((j) => j.partidos.forEach((pt) => {
+    if (!pt.resultado) return;
+    PLAYERS.forEach((p) => {
+      const v = pt[p.key];
+      if (!v) return;
+      porSigno[p.key][v].n++;
+      if (v === pt.resultado) porSigno[p.key][v].ok++;
+    });
+  }));
+
+  // Cuánto se parecen entre sí.
+  const pares = [];
+  for (let a = 0; a < PLAYERS.length; a++) {
+    for (let b = a + 1; b < PLAYERS.length; b++) {
+      let ok = 0, n = 0;
+      jugadas.forEach((j) => j.partidos.forEach((pt) => {
+        const va = pt[PLAYERS[a].key], vb = pt[PLAYERS[b].key];
+        if (va && vb) { n++; if (va === vb) ok++; }
+      }));
+      pares.push({ a: PLAYERS[a], b: PLAYERS[b], ok, n });
+    }
+  }
+
+  // Dos varas de medir: el que siempre pusiera 1, y la mayoría de los tres.
+  let siempre1 = 0, mayoria = 0, nPartidos = 0;
+  jugadas.forEach((j) => j.partidos.forEach((pt) => {
+    if (!pt.resultado) return;
+    nPartidos++;
+    if (pt.resultado === "1") siempre1++;
+    const cuenta = {};
+    PLAYERS.forEach((p) => { const v = pt[p.key]; if (v) cuenta[v] = (cuenta[v] || 0) + 1; });
+    let mejor = "", mejorN = 0;
+    Object.keys(cuenta).forEach((s) => { if (cuenta[s] > mejorN) { mejorN = cuenta[s]; mejor = s; } });
+    if (mejor && mejor === pt.resultado) mayoria++;
+  }));
+
+  const stats = { ganadas, racha, porSigno, pares, siempre1, mayoria, nPartidos };
+
   const pendiente = jornadas.find((j) => !j.played) || null;
   const ultimo = jugadas.length ? jugadas[jugadas.length - 1] : null;
   const temporada = (ultimo && ultimo.temporada) || (jornadas[0] && jornadas[0].temporada) || "";
 
-  return { jornadas, jugadas, table, realBias, realN, cumul, pendiente, ultimo, temporada };
+  return { jornadas, jugadas, table, realBias, realN, cumul, pendiente, ultimo, temporada, stats };
 }
 
 /* ============================ CHARTS (SVG a mano) ============================ */
@@ -554,6 +631,90 @@ function LastTicket({ j }) {
   );
 }
 
+function AciertoPorSigno({ st }) {
+  return (
+    <table className="signotab">
+      <thead>
+        <tr>
+          <th></th>
+          {SIGNS.map((s) => (
+            <th key={s} className="center" style={{ color: SIGN_COLOR[s] }}>
+              {s === "1" ? "1 · local" : s === "X" ? "X · empate" : "2 · visita"}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {st.table.map((p) => (
+          <tr key={p.key}>
+            <td className="quien"><span className="dot" style={{ background: p.color }} /> {p.name}</td>
+            {SIGNS.map((s) => {
+              const d = st.stats.porSigno[p.key][s];
+              return (
+                <td key={s} className="sgcell">
+                  {d.n === 0 ? <span className="sgnada">–</span> : <>
+                    <div className="sgpct" style={{ color: SIGN_COLOR[s] }}>
+                      {Math.round((d.ok / d.n) * 100)}%
+                    </div>
+                    <div className="sgraw">{d.ok}/{d.n}</div>
+                  </>}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function Numeros({ st }) {
+  const s = st.stats;
+  const lider = st.table[0];
+  const masRacha = [...st.table].sort((a, b) => s.racha[b.key] - s.racha[a.key])[0];
+  const parMasParecido = [...s.pares].sort((a, b) => (b.n ? b.ok / b.n : 0) - (a.n ? a.ok / a.n : 0))[0];
+  const pct = (ok, n) => (n ? Math.round((ok / n) * 100) + "%" : "–");
+
+  return (
+    <div className="statgrid">
+      <div className="stat">
+        <div className="lbl">Jornadas ganadas</div>
+        <div className="val" style={{ color: lider.color }}>{s.ganadas[lider.key]}</div>
+        <div className="pie">{lider.name} · de {st.jugadas.length} jugadas</div>
+      </div>
+
+      <div className="stat">
+        <div className="lbl">Racha</div>
+        <div className="val" style={{ color: masRacha.color }}>
+          {s.racha[masRacha.key] || 0}
+        </div>
+        <div className="pie">
+          {s.racha[masRacha.key] ? `${masRacha.name} lleva ${s.racha[masRacha.key]} seguida${s.racha[masRacha.key] === 1 ? "" : "s"}`
+            : "nadie encadena dos"}
+        </div>
+      </div>
+
+      <div className="stat">
+        <div className="lbl">Se parecen</div>
+        <div className="val">{pct(parMasParecido.ok, parMasParecido.n)}</div>
+        <div className="pie">{parMasParecido.a.name} y {parMasParecido.b.name}, los que más</div>
+      </div>
+
+      <div className="stat">
+        <div className="lbl">La mayoría</div>
+        <div className="val">{pct(s.mayoria, s.nPartidos)}</div>
+        <div className="pie">si jugarais lo que votan 2 de 3</div>
+      </div>
+
+      <div className="stat">
+        <div className="lbl">Siempre "1"</div>
+        <div className="val">{pct(s.siempre1, s.nPartidos)}</div>
+        <div className="pie">el que no pensara nada</div>
+      </div>
+    </div>
+  );
+}
+
 function Legend({ items }) {
   return (
     <div className="legend">
@@ -679,6 +840,20 @@ function App() {
           <Legend items={legend} />
           <GroupedBars labels={labels} series={perJornada} />
         </div>
+      </section>
+      )}
+
+      {st.jugadas.length > 0 && (
+      <section>
+        <h2>Números sueltos</h2>
+        <div className="panel"><Numeros st={st} /></div>
+      </section>
+      )}
+
+      {st.jugadas.length > 0 && (
+      <section>
+        <h2>Acierto según el signo que pones</h2>
+        <div className="panel"><AciertoPorSigno st={st} /></div>
       </section>
       )}
 
