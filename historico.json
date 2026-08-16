@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "temporada": "2026-2027",
+    "jornada": 1,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Alavés",
+        "visitante": "Getafe"
+      },
+      {
+        "partido": 2,
+        "local": "Sevilla",
+        "visitante": "Rayo"
+      },
+      {
+        "partido": 3,
+        "local": "Racing S.",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 4,
+        "local": "Espanyol",
+        "visitante": "Levante"
+      },
+      {
+        "partido": 5,
+        "local": "Celta",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 6,
+        "local": "Andorra FC",
+        "visitante": "Ceuta"
+      },
+      {
+        "partido": 7,
+        "local": "Cádiz",
+        "visitante": "Celta Fortuna"
+      },
+      {
+        "partido": 8,
+        "local": "R.Oviedo",
+        "visitante": "Granada"
+      },
+      {
+        "partido": 9,
+        "local": "Mallorca",
+        "visitante": "Valladolid"
+      },
+      {
+        "partido": 10,
+        "local": "Eibar",
+        "visitante": "Tenerife"
+      },
+      {
+        "partido": 11,
+        "local": "Burgos",
+        "visitante": "Córdoba"
+      },
+      {
+        "partido": 12,
+        "local": "Girona",
+        "visitante": "Leganés"
+      },
+      {
+        "partido": 13,
+        "local": "Las Palmas",
+        "visitante": "Albacete"
+      },
+      {
+        "partido": 14,
+        "local": "Sporting",
+        "visitante": "Sabadell"
+      }
+    ],
+    "pleno15": {
+      "local": "Deportivo",
+      "visitante": "Elche"
+    }
+  }
+]

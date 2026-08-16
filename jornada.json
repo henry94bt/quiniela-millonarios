@@ -1,83 +1,86 @@
 {
-  "_comentario": "Generado por tools/actualizar-jornada.mjs. No editar a mano salvo el número de jornada o la temporada. Respaldo de boleto.html cuando la hoja aún no tiene cargada la jornada. Ver README, sección 7.",
-  "_actualizado": "2026-08-12",
+  "_comentario": "Generado por tools/actualizar-jornada.mjs. No editar a mano: se reescribe solo. Respaldo de boleto.html cuando la hoja aún no tiene cargada la jornada. Ver README, sección 7.",
+  "_fuentes": {
+    "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
+    "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
+  },
+  "_actualizado": "2026-08-16",
   "temporada": "2026-2027",
-  "jornada": 1,
+  "jornada": 2,
   "partidos": [
     {
       "partido": 1,
-      "local": "Alavés",
-      "visitante": "Getafe"
+      "local": "Ath.Club",
+      "visitante": "Sevilla"
     },
     {
       "partido": 2,
-      "local": "Sevilla",
-      "visitante": "Rayo"
+      "local": "Valencia",
+      "visitante": "Celta"
     },
     {
       "partido": 3,
-      "local": "Racing S.",
-      "visitante": "Villarreal"
+      "local": "Espanyol",
+      "visitante": "R.Madrid"
     },
     {
       "partido": 4,
-      "local": "Espanyol",
-      "visitante": "Levante"
+      "local": "Getafe",
+      "visitante": "Racing S."
     },
     {
       "partido": 5,
-      "local": "Celta",
-      "visitante": "Osasuna"
+      "local": "Elche",
+      "visitante": "Barcelona"
     },
     {
       "partido": 6,
-      "local": "Andorra FC",
-      "visitante": "Ceuta"
+      "local": "Osasuna",
+      "visitante": "Levante"
     },
     {
       "partido": 7,
-      "local": "Cádiz",
-      "visitante": "Celta Fortuna"
+      "local": "Málaga",
+      "visitante": "Deportivo"
     },
     {
       "partido": 8,
       "local": "R.Oviedo",
-      "visitante": "Granada"
-    },
-    {
-      "partido": 9,
-      "local": "Mallorca",
-      "visitante": "Valladolid"
-    },
-    {
-      "partido": 10,
-      "local": "Eibar",
-      "visitante": "Tenerife"
-    },
-    {
-      "partido": 11,
-      "local": "Burgos",
-      "visitante": "Córdoba"
-    },
-    {
-      "partido": 12,
-      "local": "Girona",
       "visitante": "Leganés"
     },
     {
+      "partido": 9,
+      "local": "Ceuta",
+      "visitante": "Las Palmas"
+    },
+    {
+      "partido": 10,
+      "local": "Eldense",
+      "visitante": "Cádiz"
+    },
+    {
+      "partido": 11,
+      "local": "Eibar",
+      "visitante": "Valladolid"
+    },
+    {
+      "partido": 12,
+      "local": "Castellón",
+      "visitante": "Sabadell"
+    },
+    {
       "partido": 13,
-      "local": "Las Palmas",
-      "visitante": "Albacete"
+      "local": "Sporting",
+      "visitante": "Burgos"
     },
     {
       "partido": 14,
-      "local": "Sporting",
-      "visitante": "Sabadell"
+      "local": "Tenerife",
+      "visitante": "Almería"
     }
   ],
   "pleno15": {
-    "local": "Deportivo",
-    "visitante": "Elche"
-  },
-  "_fuente": "https://www.mundodeportivo.com/servicios/quiniela"
+    "local": "At.Madrid",
+    "visitante": "Villarreal"
+  }
 }
