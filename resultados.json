@@ -3,5 +3,11 @@
     "temporada": "2025-2026",
     "jornada": 76,
     "signos": "2,2,1,2,2,X,1,2,2,1,2,2,1,X"
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 1,
+    "signos": "1,1,X,1,X,1,X,X,1,2,1,X,1,X",
+    "pleno": "1-1"
   }
 ]
