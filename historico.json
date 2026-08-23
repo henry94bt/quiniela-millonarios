@@ -78,5 +78,85 @@
       "local": "Deportivo",
       "visitante": "Elche"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 2,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Ath.Club",
+        "visitante": "Sevilla"
+      },
+      {
+        "partido": 2,
+        "local": "Valencia",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 3,
+        "local": "Espanyol",
+        "visitante": "R.Madrid"
+      },
+      {
+        "partido": 4,
+        "local": "Getafe",
+        "visitante": "Racing S."
+      },
+      {
+        "partido": 5,
+        "local": "Elche",
+        "visitante": "Barcelona"
+      },
+      {
+        "partido": 6,
+        "local": "Osasuna",
+        "visitante": "Levante"
+      },
+      {
+        "partido": 7,
+        "local": "Málaga",
+        "visitante": "Deportivo"
+      },
+      {
+        "partido": 8,
+        "local": "R.Oviedo",
+        "visitante": "Leganés"
+      },
+      {
+        "partido": 9,
+        "local": "Ceuta",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 10,
+        "local": "Eldense",
+        "visitante": "Cádiz"
+      },
+      {
+        "partido": 11,
+        "local": "Eibar",
+        "visitante": "Valladolid"
+      },
+      {
+        "partido": 12,
+        "local": "Castellón",
+        "visitante": "Sabadell"
+      },
+      {
+        "partido": 13,
+        "local": "Sporting",
+        "visitante": "Burgos"
+      },
+      {
+        "partido": 14,
+        "local": "Tenerife",
+        "visitante": "Almería"
+      }
+    ],
+    "pleno15": {
+      "local": "At.Madrid",
+      "visitante": "Villarreal"
+    }
   }
 ]
