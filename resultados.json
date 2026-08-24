@@ -9,5 +9,11 @@
     "jornada": 1,
     "signos": "1,1,X,1,X,1,X,X,1,2,1,X,1,X",
     "pleno": "1-1"
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 2,
+    "signos": "2,X,2,1,2,X,X,2,2,X,1,X,1,1",
+    "pleno": "2-2"
   }
 ]
