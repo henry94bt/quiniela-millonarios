@@ -238,5 +238,85 @@
       "local": "Barcelona",
       "visitante": "Rayo"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 4,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Ath.Club",
+        "visitante": "At.Madrid"
+      },
+      {
+        "partido": 2,
+        "local": "Rayo",
+        "visitante": "Racing S."
+      },
+      {
+        "partido": 3,
+        "local": "Villarreal",
+        "visitante": "Deportivo"
+      },
+      {
+        "partido": 4,
+        "local": "Valencia",
+        "visitante": "Barcelona"
+      },
+      {
+        "partido": 5,
+        "local": "Alavés",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 6,
+        "local": "Málaga",
+        "visitante": "Levante"
+      },
+      {
+        "partido": 7,
+        "local": "Espanyol",
+        "visitante": "Sevilla"
+      },
+      {
+        "partido": 8,
+        "local": "R.Sociedad B",
+        "visitante": "Tenerife"
+      },
+      {
+        "partido": 9,
+        "local": "Sporting",
+        "visitante": "Girona"
+      },
+      {
+        "partido": 10,
+        "local": "Almería",
+        "visitante": "Cádiz"
+      },
+      {
+        "partido": 11,
+        "local": "Sevilla (f)",
+        "visitante": "Barcelona (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Logroño (f)",
+        "visitante": "Ath.Club (f)"
+      },
+      {
+        "partido": 13,
+        "local": "At.Madrid (f)",
+        "visitante": "Alavés (f)"
+      },
+      {
+        "partido": 14,
+        "local": "R.Madrid (f)",
+        "visitante": "Eibar (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Getafe",
+      "visitante": "Celta"
+    }
   }
 ]
