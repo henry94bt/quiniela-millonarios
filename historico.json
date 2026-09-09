@@ -318,5 +318,85 @@
       "local": "Getafe",
       "visitante": "Celta"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 5,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "B.Dortmund",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 2,
+        "local": "Oporto",
+        "visitante": "Man.City"
+      },
+      {
+        "partido": 3,
+        "local": "Losc Lille",
+        "visitante": "Betis"
+      },
+      {
+        "partido": 4,
+        "local": "R.Madrid",
+        "visitante": "Inter"
+      },
+      {
+        "partido": 5,
+        "local": "Barcelona",
+        "visitante": "Feyenoord"
+      },
+      {
+        "partido": 6,
+        "local": "Psg",
+        "visitante": "Slovan Bratislava"
+      },
+      {
+        "partido": 7,
+        "local": "Sporting Port.",
+        "visitante": "Galatasaray"
+      },
+      {
+        "partido": 8,
+        "local": "Napoli",
+        "visitante": "Arsenal"
+      },
+      {
+        "partido": 9,
+        "local": "Fenerbahce",
+        "visitante": "Roma"
+      },
+      {
+        "partido": 10,
+        "local": "Psv",
+        "visitante": "Shakhtar"
+      },
+      {
+        "partido": 11,
+        "local": "Como 1907",
+        "visitante": "Leipzig"
+      },
+      {
+        "partido": 12,
+        "local": "B.Munich",
+        "visitante": "Bodoglimt"
+      },
+      {
+        "partido": 13,
+        "local": "Man.United",
+        "visitante": "Sabah"
+      },
+      {
+        "partido": 14,
+        "local": "Slavia Praga",
+        "visitante": "Lens"
+      }
+    ],
+    "pleno15": {
+      "local": "Liverpool",
+      "visitante": "At.Madrid"
+    }
   }
 ]

@@ -4,83 +4,83 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-09-06",
+  "_actualizado": "2026-09-09",
   "temporada": "2026-2027",
-  "jornada": 5,
+  "jornada": 6,
   "partidos": [
     {
       "partido": 1,
-      "local": "B.Dortmund",
-      "visitante": "Villarreal"
+      "local": "Ath.Club",
+      "visitante": "Elche"
     },
     {
       "partido": 2,
-      "local": "Oporto",
-      "visitante": "Man.City"
+      "local": "Levante",
+      "visitante": "Barcelona"
     },
     {
       "partido": 3,
-      "local": "Losc Lille",
-      "visitante": "Betis"
+      "local": "Osasuna",
+      "visitante": "Espanyol"
     },
     {
       "partido": 4,
-      "local": "R.Madrid",
-      "visitante": "Inter"
+      "local": "Racing S.",
+      "visitante": "Alavés"
     },
     {
       "partido": 5,
-      "local": "Barcelona",
-      "visitante": "Feyenoord"
+      "local": "R.Madrid",
+      "visitante": "Rayo"
     },
     {
       "partido": 6,
-      "local": "Psg",
-      "visitante": "Slovan Bratislava"
+      "local": "Sevilla",
+      "visitante": "Valencia"
     },
     {
       "partido": 7,
-      "local": "Sporting Port.",
-      "visitante": "Galatasaray"
+      "local": "Villarreal",
+      "visitante": "Betis"
     },
     {
       "partido": 8,
-      "local": "Napoli",
-      "visitante": "Arsenal"
+      "local": "Cádiz",
+      "visitante": "Las Palmas"
     },
     {
       "partido": 9,
-      "local": "Fenerbahce",
-      "visitante": "Roma"
+      "local": "Tenerife",
+      "visitante": "Leganés"
     },
     {
       "partido": 10,
-      "local": "Psv",
-      "visitante": "Shakhtar"
+      "local": "Valladolid",
+      "visitante": "R.Oviedo"
     },
     {
       "partido": 11,
-      "local": "Como 1907",
-      "visitante": "Leipzig"
+      "local": "Alavés (f)",
+      "visitante": "Granada (f)"
     },
     {
       "partido": 12,
-      "local": "B.Munich",
-      "visitante": "Bodoglimt"
+      "local": "Logroño (f)",
+      "visitante": "Valencia (f)"
     },
     {
       "partido": 13,
-      "local": "Man.United",
-      "visitante": "Sabah"
+      "local": "Eibar (f)",
+      "visitante": "Badalona W.(f)"
     },
     {
       "partido": 14,
-      "local": "Slavia Praga",
-      "visitante": "Lens"
+      "local": "Madrid Cff (f)",
+      "visitante": "Sevilla (f)"
     }
   ],
   "pleno15": {
-    "local": "Liverpool",
+    "local": "R.Sociedad",
     "visitante": "At.Madrid"
   }
 }
