@@ -169,6 +169,16 @@ const normSign = (v) => {
 const normKey = (k) =>
   String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 
+/* El Pleno al 15 va pegado a los 14 signos con "|" (p.ej. "1,X,2,…,1|0-M").
+   Hay que separarlo antes de trocear por comas o el último signo sale mal. */
+function partirSignos(raw) {
+  const p = String(raw == null ? "" : raw).split("|");
+  return {
+    signos: p[0].split(/[,\s]+/).map(normSign).filter((s) => s !== ""),
+    pleno: (p[1] || "").trim().toUpperCase(),
+  };
+}
+
 /* ---------- datos demo ---------- */
 function demoRows() {
   // PRNG determinista para que la demo sea siempre igual
@@ -218,7 +228,8 @@ function cargarCarteles() {
     pedir("jornada.json"),
     pedir("historico.json"),
     pedir("resultados.json"),
-  ]).then(([act, hist, res]) => {
+    pedir("escrutinio.json"),
+  ]).then(([act, hist, res, escr]) => {
     const mapa = new Map();
     (Array.isArray(hist) ? hist : []).forEach((h) => {
       mapa.set(h.jornada, { temporada: h.temporada, partidos: h.partidos || [] });
@@ -227,11 +238,23 @@ function cargarCarteles() {
 
     // Resultados que el bot ya ha recogido del marcador al terminar la jornada.
     const resultados = new Map();
+    const resultadosPleno = new Map();
     (Array.isArray(res) ? res : []).forEach((r) => {
       const signos = String(r.signos || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
       if (signos.length) resultados.set(r.jornada, signos);
+      if (r.pleno) resultadosPleno.set(r.jornada, String(r.pleno).trim().toUpperCase());
     });
     mapa.resultados = resultados;
+    mapa.resultadosPleno = resultadosPleno;
+
+    // Premios por categoría, del escrutinio oficial (llega unos días después
+    // de jugarse la jornada: ver tools/actualizar-jornada.mjs).
+    const escrutinio = new Map();
+    (Array.isArray(escr) ? escr : []).forEach((e) => {
+      escrutinio.set(e.jornada, e.categorias || {});
+    });
+    mapa.escrutinio = escrutinio;
+
     return mapa;
   });
 }
@@ -248,7 +271,8 @@ function filasDesdeRespuestas(data, carteles) {
     Object.keys(r).forEach((k) => { o[normKey(k)] = r[k]; });
     const jornada = parseInt(o.jornada, 10);
     if (isNaN(jornada)) return;
-    const signos = String(o.signos || o.signo || "").split(/[,\s]+/).map(normSign).filter((s) => s !== "");
+    const t = partirSignos(o.signos || o.signo);
+    const signos = t.signos;
     if (!signos.length) return;
 
     const nombre = String(o.nombre || "").trim().toLowerCase();
@@ -258,16 +282,21 @@ function filasDesdeRespuestas(data, carteles) {
     )[0];
     if (!esResultado && !jugador) return;
 
-    if (!porJornada.has(jornada)) porJornada.set(jornada, { picks: {}, resultado: null, n: 0 });
+    if (!porJornada.has(jornada)) porJornada.set(jornada, { picks: {}, plenos: {}, resultado: null, n: 0 });
     const j = porJornada.get(jornada);
     // el formulario va añadiendo filas: la última de cada uno es la buena
-    if (esResultado) j.resultado = signos;
-    else j.picks[jugador.key] = signos;
+    if (esResultado) {
+      j.resultado = signos;
+    } else {
+      j.picks[jugador.key] = signos;
+      j.plenos[jugador.key] = t.pleno;
+    }
     j.n = Math.max(j.n, signos.length);
   });
 
   const auto = carteles.resultados || new Map();
   const filas = [];
+  const plenos = new Map();
   [...porJornada.keys()].sort((a, b) => a - b).forEach((jornada) => {
     const j = porJornada.get(jornada);
     const cartel = carteles.get(jornada) || { temporada: "", partidos: [] };
@@ -287,8 +316,9 @@ function filasDesdeRespuestas(data, carteles) {
       PLAYERS.forEach((pl) => { fila[pl.key] = (j.picks[pl.key] && j.picks[pl.key][i]) || ""; });
       filas.push(fila);
     }
+    plenos.set(jornada, j.plenos);
   });
-  return filas;
+  return { filas, plenos };
 }
 
 /* ---------- parseo del CSV ---------- */
@@ -313,12 +343,28 @@ function parseRows(raw) {
 }
 
 /* ---------- agregación ---------- */
-function buildStats(rows) {
+function buildStats(rows, plenosPorJornada, resultadosPleno, escrutinioPorJornada) {
+  const plenos = plenosPorJornada || new Map();
+  const plenoOficialDe = resultadosPleno || new Map();
+  const escrutinio = escrutinioPorJornada || new Map();
+
   const byJornada = new Map();
   rows.forEach((r) => {
     if (!byJornada.has(r.jornada)) byJornada.set(r.jornada, []);
     byJornada.get(r.jornada).push(r);
   });
+
+  // Categoría de premio de un jugador en una jornada ya completa: el pleno
+  // solo cuenta si además de acertar los 14 signos, él mismo lo jugó y
+  // coincide con el oficial (si no lo rellenó, su boleto no optaba a esa
+  // categoría, aunque el pleno real hubiera acertado igual).
+  function categoriaPremio(aciertos, plenoPropio, plenoOficial) {
+    if (aciertos === 14) {
+      return plenoPropio && plenoOficial && plenoPropio === plenoOficial ? "15" : "14";
+    }
+    if (aciertos === 13 || aciertos === 12 || aciertos === 11) return String(aciertos);
+    return null;
+  }
 
   const jornadas = [...byJornada.keys()].sort((a, b) => a - b).map((j) => {
     const partidos = byJornada.get(j).slice().sort((a, b) => a.partido - b.partido);
@@ -327,6 +373,25 @@ function buildStats(rows) {
     PLAYERS.forEach((pl) => {
       scores[pl.key] = played.filter((p) => p[pl.key] && p[pl.key] === p.resultado).length;
     });
+
+    // Para el dinero hacen falta los 14 resultados, no basta con "alguno
+    // jugado": una categoría de premio a medio calcular no vale nada.
+    const completa = partidos.length === 14 && played.length === 14;
+    const plenoOficial = plenoOficialDe.get(j) || "";
+    const plenosJ = plenos.get(j) || {};
+    const cats = escrutinio.get(j) || null;
+    const dinero = {};
+    if (completa) {
+      PLAYERS.forEach((pl) => {
+        const cat = categoriaPremio(scores[pl.key], plenosJ[pl.key] || "", plenoOficial);
+        dinero[pl.key] = {
+          categoria: cat,
+          premio: cat && cats && cats[cat] ? cats[cat].premio : 0,
+          pendiente: !!cat && (!cats || !cats[cat]),
+        };
+      });
+    }
+
     return {
       jornada: j,
       temporada: partidos[0] ? partidos[0].temporada : "",
@@ -334,17 +399,24 @@ function buildStats(rows) {
       played: played.length > 0,
       nPlayed: played.length,
       scores,
+      dinero,
     };
   });
 
   const jugadas = jornadas.filter((j) => j.played);
 
   const table = PLAYERS.map((pl) => {
-    let aciertos = 0, posibles = 0, best = null;
+    let aciertos = 0, posibles = 0, best = null, dinero = 0, premios = 0, pendiente = false;
     jugadas.forEach((j) => {
       aciertos += j.scores[pl.key];
       posibles += j.nPlayed;
       if (best === null || j.scores[pl.key] > best.n) best = { n: j.scores[pl.key], jornada: j.jornada };
+      const d = j.dinero[pl.key];
+      if (d && d.categoria) {
+        premios++;
+        dinero += d.premio || 0;
+        if (d.pendiente) pendiente = true;
+      }
     });
     const bias = { "1": 0, "X": 0, "2": 0 };
     let picks = 0;
@@ -360,8 +432,15 @@ function buildStats(rows) {
       bias,
       picks,
       media: jugadas.length ? aciertos / jugadas.length : 0,
+      dinero,
+      premios,
+      dineroPendiente: pendiente,
     };
   }).sort((a, b) => b.aciertos - a.aciertos || b.pct - a.pct);
+
+  const dineroTable = [...table].sort((a, b) => b.dinero - a.dinero);
+  const dineroTotal = table.reduce((acc, p) => acc + p.dinero, 0);
+  const dineroPendiente = table.some((p) => p.dineroPendiente);
 
   // sesgo real de los resultados, como referencia
   const realBias = { "1": 0, "X": 0, "2": 0 };
@@ -443,7 +522,10 @@ function buildStats(rows) {
   const ultimo = jugadas.length ? jugadas[jugadas.length - 1] : null;
   const temporada = (ultimo && ultimo.temporada) || (jornadas[0] && jornadas[0].temporada) || "";
 
-  return { jornadas, jugadas, table, realBias, realN, cumul, pendiente, ultimo, temporada, stats };
+  return {
+    jornadas, jugadas, table, realBias, realN, cumul, pendiente, ultimo, temporada, stats,
+    dineroTable, dineroTotal, dineroPendiente,
+  };
 }
 
 /* ============================ CHARTS (SVG a mano) ============================ */
@@ -559,6 +641,23 @@ function RankCard({ p, i }) {
         <span>Acierto <b className="mono">{p.pct.toFixed(1)}%</b></span>
         <span>Media <b className="mono">{p.media.toFixed(1)}</b></span>
         <span>Mejor <b className="mono">{p.best.n} (J{p.best.jornada})</b></span>
+      </div>
+    </div>
+  );
+}
+
+const fmtEuros = (n) => n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+function DineroCard({ p, i }) {
+  const pos = ["Líder", "2º", "3º"][i] || `${i + 1}º`;
+  return (
+    <div className="card rank" style={{ "--accent": p.color }}>
+      <div className="pos">{pos}</div>
+      <div className="who"><span className="dot" style={{ background: p.color }} />{p.name}</div>
+      <div className="big mono">{fmtEuros(p.dinero)}</div>
+      <div className="metaline">
+        <span>Premios <b className="mono">{p.premios}</b></span>
+        {p.dineroPendiente && <span>Falta escrutinio</span>}
       </div>
     </div>
   );
@@ -738,16 +837,25 @@ function Legend({ items }) {
 }
 
 function App() {
-  const [state, setState] = React.useState({ status: "loading", rows: [], demo: false, error: "" });
+  const [state, setState] = React.useState({
+    status: "loading", rows: [], plenos: new Map(), resultadosPleno: new Map(),
+    escrutinio: new Map(), demo: false, error: "",
+  });
 
   React.useEffect(() => {
     // Las apuestas salen de la hoja del formulario; los partidos y los
     // resultados, de los JSON del repo.
     cargarCarteles().then((carteles) => {
       const listo = (data) => {
-        const rows = filasDesdeRespuestas(data || [], carteles);
-        if (rows.length) setState({ status: "ready", rows, demo: false, error: "" });
-        else seguirConLoAntiguo();
+        const { filas, plenos } = filasDesdeRespuestas(data || [], carteles);
+        if (filas.length) {
+          setState({
+            status: "ready", rows: filas, plenos,
+            resultadosPleno: carteles.resultadosPleno || new Map(),
+            escrutinio: carteles.escrutinio || new Map(),
+            demo: false, error: "",
+          });
+        } else seguirConLoAntiguo();
       };
 
       if (!isPlaceholder(CSV_APUESTAS)) {
@@ -789,7 +897,7 @@ function App() {
     return <div className="wrap"><div className="loading">Cargando quiniela…</div></div>;
   }
 
-  const st = buildStats(state.rows);
+  const st = buildStats(state.rows, state.plenos, state.resultadosPleno, state.escrutinio);
   const labels = st.jugadas.map((j) => j.jornada);
   const cumulSeries = PLAYERS.map((p) => ({ name: p.name, color: p.color, values: st.cumul[p.key] }));
   const perJornada = PLAYERS.map((p) => ({
@@ -831,6 +939,25 @@ function App() {
           {st.table.map((p, i) => <RankCard key={p.key} p={p} i={i} />)}
         </div>
       )}
+
+      <section>
+        <h2>Dinero ganado</h2>
+        <div className="panel" style={{ marginBottom: 14 }}>
+          <div className="metaline" style={{ marginTop: 0, fontSize: 13.5 }}>
+            <span>Entre los tres, hasta ahora</span>
+            <b className="mono" style={{ fontSize: 17, color: "var(--txt)" }}>{fmtEuros(st.dineroTotal)}</b>
+          </div>
+        </div>
+        {st.dineroPendiente && (
+          <div className="banner" style={{ marginTop: 0, marginBottom: 14 }}>
+            Hay una categoría ganada esta temporada cuyo escrutinio (el importe oficial del premio)
+            todavía no se ha publicado. El bot lo añade solo en cuanto SELAE lo saca.
+          </div>
+        )}
+        <div className="grid cards">
+          {st.dineroTable.map((p, i) => <DineroCard key={p.key} p={p} i={i} />)}
+        </div>
+      </section>
 
       {st.jugadas.length > 0 && (
       <section>

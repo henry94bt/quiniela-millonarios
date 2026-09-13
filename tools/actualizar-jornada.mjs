@@ -1,16 +1,18 @@
 /**
- * Mantiene al día los tres archivos de datos del repo:
+ * Mantiene al día los cuatro archivos de datos del repo:
  *
  *   jornada.json     el cartel de la jornada en curso
  *   historico.json   los carteles de las jornadas ya pasadas
  *   resultados.json  los 14 signos de cada jornada terminada
+ *   escrutinio.json  los premios en euros de cada jornada terminada
  *
- * Fuentes (las tres responden desde un runner de GitHub; la oficial de SELAE
+ * Fuentes (todas responden desde un runner de GitHub; la oficial de SELAE
  * no, ver README sección 7):
  *
- *   quinielista.es  número de jornada y temporada oficiales
- *   mundodeportivo  el cartel de la jornada que viene
- *   dataradar.es    marcador en vivo, de donde salen los signos al terminar
+ *   quinielista.es    número de jornada y temporada oficiales
+ *   mundodeportivo    el cartel de la jornada que viene
+ *   dataradar.es      marcador en vivo, de donde salen los signos al terminar
+ *   eduardolosilla.es escrutinio (premios por categoría) de jornadas cerradas
  *
  * Node 20+, sin dependencias.  Uso:  node tools/actualizar-jornada.mjs
  *   --dry-run  no escribe nada, solo enseña lo que haría
@@ -21,10 +23,12 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 const URL_JORNADA = "https://static.quinielista.es/quinielista/jornada_quiniela.json";
 const URL_CARTEL = "https://www.mundodeportivo.com/servicios/quiniela";
 const URL_MARCADOR = "https://static.dataradar.es/marcador/json/partidos.json";
+const URL_ESCRUTINIO = (n) => `https://www.eduardolosilla.es/quiniela/ayudas/escrutinio/jornada_${n}`;
 
 const DESTINO = new URL("../jornada.json", import.meta.url);
 const HISTORICO = new URL("../historico.json", import.meta.url);
 const RESULTADOS = new URL("../resultados.json", import.meta.url);
+const ESCRUTINIO = new URL("../escrutinio.json", import.meta.url);
 const DRY = process.argv.includes("--dry-run");
 
 const UA =
@@ -201,6 +205,78 @@ if (partidosM.length !== 14) {
       console.log(`J${jm} (${tm}) terminada: guardado ${signos.join(",")}` +
                   (pleno ? ` | pleno ${pleno}` : " | sin pleno"));
     }
+  }
+}
+
+/* ---------- 3. escrutinio (premios en euros) ---------- */
+// eduardolosilla.es publica, para cada jornada, cuántos acertantes hubo y
+// cuánto se lleva cada boleto en las categorías de 15 (14 signos + pleno),
+// 14, 13, 12 y 11 aciertos. Tarda unos días en publicarse tras jugarse la
+// jornada, así que se reintenta en cada pasada hasta que aparezca.
+const CATEGORIAS_PREMIO = ["15", "14", "13", "12", "11"];
+
+function euros(txt) {
+  return Number(String(txt).trim().replace(/\./g, "").replace(",", "."));
+}
+
+/** Aún si la página carga, el escrutinio no está listo hasta que SELAE lo
+ *  publica: mientras tanto todas las categorías, incluida la de "10
+ *  aciertos" (que con miles de apostantes nunca es cero de verdad), salen a
+ *  0. Ese es el aviso de "todavía no": ni se guarda ni se reintenta ya. */
+function extraerEscrutinio(html, jornadaEsperada, temporadaEsperada) {
+  // El selector de jornadas de la página lista TODAS las jornadas como
+  // opciones (cada una con su propio title="QUINIELA JORNADA N"), así que no
+  // sirve para confirmar cuál se ha servido. El <link rel="canonical"> sí es
+  // único por página.
+  if (html.indexOf(`rel="canonical" href="https://www.eduardolosilla.es/quiniela/ayudas/escrutinio/jornada_${jornadaEsperada}"`) === -1) {
+    throw new Error(`la página no confirma ser la jornada ${jornadaEsperada}`);
+  }
+  // La URL no lleva temporada: sirve la de la temporada en curso. Si
+  // resultados.json guarda una jornada de una temporada ya cerrada (el
+  // número se repite cada temporada), hay que comprobar la temporada en el
+  // título ("JORNADA 5 - 26/27") para no colar el escrutinio equivocado.
+  const cap = html.match(/JORNADA\s+\d+\s*-\s*(\d{2})\/(\d{2})/);
+  if (!cap) throw new Error("no encontré la temporada en la página");
+  const temporadaPagina = `20${cap[1]}-20${cap[2]}`;
+  if (temporadaPagina !== temporadaEsperada) {
+    throw new Error(`la página es de la temporada ${temporadaPagina}, no ${temporadaEsperada}`);
+  }
+  const porCategoria = {};
+  for (const m of html.matchAll(
+    /aciertos__qty">(\d+)<\/span>Aciertos[\s\S]*?acertantes">\s*([\d.]+)\s*<[\s\S]*?premio">\s*([\d.,]+)\s*€/g
+  )) {
+    porCategoria[m[1]] = { acertantes: Number(m[2].replace(/\./g, "")), premio: euros(m[3]) };
+  }
+  const diez = porCategoria["10"];
+  if (!diez || diez.acertantes === 0) return null;
+
+  const categorias = {};
+  CATEGORIAS_PREMIO.forEach((c) => { if (porCategoria[c]) categorias[c] = porCategoria[c]; });
+  return categorias;
+}
+
+const escrutinio = leer(ESCRUTINIO, []);
+const resultadosCerrados = leer(RESULTADOS, []);
+const pendientesEscrutinio = resultadosCerrados.filter(
+  (r) => !escrutinio.some((e) => e.jornada === r.jornada && e.temporada === r.temporada)
+);
+
+for (const r of pendientesEscrutinio) {
+  try {
+    const html = decodificar(await pedir(URL_ESCRUTINIO(r.jornada), "buffer"));
+    const categorias = extraerEscrutinio(html, r.jornada, r.temporada);
+    if (!categorias) {
+      console.log(`J${r.jornada}: escrutinio todavía no publicado.`);
+      continue;
+    }
+    escrutinio.push({ temporada: r.temporada, jornada: r.jornada, categorias });
+    escrutinio.sort(
+      (a, b) => String(a.temporada).localeCompare(String(b.temporada)) || a.jornada - b.jornada
+    );
+    escribir(ESCRUTINIO, escrutinio);
+    console.log(`J${r.jornada}: escrutinio guardado (categorías ${Object.keys(categorias).join(", ")}).`);
+  } catch (e) {
+    console.log(`J${r.jornada}: no se pudo leer el escrutinio (${e.message}).`);
   }
 }
 

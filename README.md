@@ -20,6 +20,7 @@ Cada cosa en su sitio:
 | Los 14 partidos de la jornada en curso | `jornada.json` | un bot, cada 3 horas |
 | Los partidos de las jornadas pasadas | `historico.json` | el mismo bot, al cambiar de jornada |
 | Los resultados de cada jornada | `resultados.json` | el mismo bot, al acabar los partidos |
+| Los premios en euros de cada jornada | `escrutinio.json` | el mismo bot, unos días después |
 | **Las apuestas** | la hoja del formulario | cada uno, desde el boleto |
 
 Nadie tiene que tocar nada: cada uno guarda la suya desde el boleto y el resto va solo.
@@ -82,11 +83,13 @@ workflow**, o en local:
 node tools/actualizar-jornada.mjs --dry-run
 ```
 
-Tres fuentes, las tres accesibles desde un runner:
+Cuatro fuentes, todas accesibles desde un runner:
 
 - **quinielista.es** → número de jornada y temporada oficiales.
 - **mundodeportivo.com** → el cartel de la jornada que viene.
 - **dataradar.es** → el marcador, de donde salen los signos al terminar los partidos.
+- **eduardolosilla.es** → el escrutinio (acertantes y premio por categoría) de las
+  jornadas ya cerradas.
 
 La fuente oficial de SELAE (`loteriasyapuestas.es/servicios/fechav3`) sería la ideal,
 pero está detrás de Akamai y se comprobó que devuelve **403** a todo lo que no sea un
@@ -96,6 +99,22 @@ GitHub Actions. Por eso no se usa.
 Si un día cambia el HTML de mundodeportivo, el workflow sale **en rojo** y los datos se
 quedan como estaban, en vez de escribirse basura. El selector está en una línea:
 `<div class="bg-name">`.
+
+## El dinero
+
+El dashboard suma, para cada uno, lo que su boleto individual habría cobrado en cada
+jornada ya cerrada (14 signos por persona, no una apuesta combinada de los tres): mira
+cuántos de los 14 acertó, si además clavó el Pleno al 15 que él mismo rellenó, y busca el
+importe de esa categoría en `escrutinio.json`.
+
+`escrutinio.json` lo llena `tools/actualizar-jornada.mjs` leyendo
+`eduardolosilla.es/quiniela/ayudas/escrutinio/jornada_N`, pero SELAE tarda unos días en
+publicar el escrutinio real tras jugarse la jornada — mientras tanto esa página enseña
+todo a cero, y el bot lo detecta (la categoría de 10 aciertos, que con miles de
+apostantes nunca es cero de verdad, es la pista) y no escribe nada; lo reintenta en cada
+pasada hasta que aparezca. Si alguien ha ganado una categoría antes de que se publique el
+importe, el dashboard lo avisa como "falta escrutinio" en vez de enseñar un cero
+engañoso.
 
 ## Desplegar
 
