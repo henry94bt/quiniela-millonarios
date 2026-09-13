@@ -398,5 +398,85 @@
       "local": "Liverpool",
       "visitante": "At.Madrid"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 6,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Ath.Club",
+        "visitante": "Elche"
+      },
+      {
+        "partido": 2,
+        "local": "Levante",
+        "visitante": "Barcelona"
+      },
+      {
+        "partido": 3,
+        "local": "Osasuna",
+        "visitante": "Espanyol"
+      },
+      {
+        "partido": 4,
+        "local": "Racing S.",
+        "visitante": "Alavés"
+      },
+      {
+        "partido": 5,
+        "local": "R.Madrid",
+        "visitante": "Rayo"
+      },
+      {
+        "partido": 6,
+        "local": "Sevilla",
+        "visitante": "Valencia"
+      },
+      {
+        "partido": 7,
+        "local": "Villarreal",
+        "visitante": "Betis"
+      },
+      {
+        "partido": 8,
+        "local": "Cádiz",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 9,
+        "local": "Tenerife",
+        "visitante": "Leganés"
+      },
+      {
+        "partido": 10,
+        "local": "Valladolid",
+        "visitante": "R.Oviedo"
+      },
+      {
+        "partido": 11,
+        "local": "Alavés (f)",
+        "visitante": "Granada (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Logroño (f)",
+        "visitante": "Valencia (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Eibar (f)",
+        "visitante": "Badalona W.(f)"
+      },
+      {
+        "partido": 14,
+        "local": "Madrid Cff (f)",
+        "visitante": "Sevilla (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "R.Sociedad",
+      "visitante": "At.Madrid"
+    }
   }
 ]
