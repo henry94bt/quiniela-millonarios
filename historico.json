@@ -478,5 +478,85 @@
       "local": "R.Sociedad",
       "visitante": "At.Madrid"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 7,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Rayo",
+        "visitante": "Espanyol"
+      },
+      {
+        "partido": 2,
+        "local": "Alavés",
+        "visitante": "Valencia"
+      },
+      {
+        "partido": 3,
+        "local": "Elche",
+        "visitante": "R.Madrid"
+      },
+      {
+        "partido": 4,
+        "local": "At.Madrid",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 5,
+        "local": "Deportivo",
+        "visitante": "Sevilla"
+      },
+      {
+        "partido": 6,
+        "local": "Barcelona",
+        "visitante": "Racing S."
+      },
+      {
+        "partido": 7,
+        "local": "Levante",
+        "visitante": "Ath.Club"
+      },
+      {
+        "partido": 8,
+        "local": "Betis",
+        "visitante": "Getafe"
+      },
+      {
+        "partido": 9,
+        "local": "Omonia N.",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 10,
+        "local": "Milan",
+        "visitante": "Benfica"
+      },
+      {
+        "partido": 11,
+        "local": "Anderlecht",
+        "visitante": "Ol. Lyon"
+      },
+      {
+        "partido": 12,
+        "local": "Celtic",
+        "visitante": "Ferencvaros"
+      },
+      {
+        "partido": 13,
+        "local": "Plzen",
+        "visitante": "R. Union Sg"
+      },
+      {
+        "partido": 14,
+        "local": "R.Sociedad",
+        "visitante": "Bournemouth"
+      }
+    ],
+    "pleno15": {
+      "local": "Málaga",
+      "visitante": "Villarreal"
+    }
   }
 ]

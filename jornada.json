@@ -4,83 +4,83 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-09-13",
+  "_actualizado": "2026-09-16",
   "temporada": "2026-2027",
-  "jornada": 7,
+  "jornada": 8,
   "partidos": [
     {
       "partido": 1,
-      "local": "Rayo",
-      "visitante": "Espanyol"
+      "local": "Osasuna",
+      "visitante": "Rayo"
     },
     {
       "partido": 2,
-      "local": "Alavés",
-      "visitante": "Valencia"
+      "local": "Ath.Club",
+      "visitante": "Alavés"
     },
     {
       "partido": 3,
-      "local": "Elche",
-      "visitante": "R.Madrid"
+      "local": "Sevilla",
+      "visitante": "Barcelona"
     },
     {
       "partido": 4,
-      "local": "At.Madrid",
-      "visitante": "Osasuna"
+      "local": "Getafe",
+      "visitante": "Málaga"
     },
     {
       "partido": 5,
       "local": "Deportivo",
-      "visitante": "Sevilla"
+      "visitante": "Betis"
     },
     {
       "partido": 6,
-      "local": "Barcelona",
-      "visitante": "Racing S."
+      "local": "Villarreal",
+      "visitante": "Levante"
     },
     {
       "partido": 7,
-      "local": "Levante",
-      "visitante": "Ath.Club"
+      "local": "Valencia",
+      "visitante": "R.Sociedad"
     },
     {
       "partido": 8,
-      "local": "Betis",
-      "visitante": "Getafe"
+      "local": "Andorra FC",
+      "visitante": "Sporting"
     },
     {
       "partido": 9,
-      "local": "Omonia N.",
-      "visitante": "Celta"
+      "local": "Castellón",
+      "visitante": "Tenerife"
     },
     {
       "partido": 10,
-      "local": "Milan",
-      "visitante": "Benfica"
+      "local": "Leganés",
+      "visitante": "Granada"
     },
     {
       "partido": 11,
-      "local": "Anderlecht",
-      "visitante": "Ol. Lyon"
+      "local": "At.Madrid (f)",
+      "visitante": "Logroño (f)"
     },
     {
       "partido": 12,
-      "local": "Celtic",
-      "visitante": "Ferencvaros"
+      "local": "Eibar (f)",
+      "visitante": "Ath.Club (f)"
     },
     {
       "partido": 13,
-      "local": "Plzen",
-      "visitante": "R. Union Sg"
+      "local": "R.Madrid (f)",
+      "visitante": "Valencia (f)"
     },
     {
       "partido": 14,
-      "local": "R.Sociedad",
-      "visitante": "Bournemouth"
+      "local": "Tenerife (f)",
+      "visitante": "Sevilla (f)"
     }
   ],
   "pleno15": {
-    "local": "Málaga",
-    "visitante": "Villarreal"
+    "local": "At.Madrid",
+    "visitante": "R.Madrid"
   }
 }
