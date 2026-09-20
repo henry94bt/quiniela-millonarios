@@ -4,9 +4,9 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-09-16",
+  "_actualizado": "2026-09-20",
   "temporada": "2026-2027",
-  "jornada": 8,
+  "jornada": 9,
   "partidos": [
     {
       "partido": 1,
