@@ -236,7 +236,7 @@ function conRespaldo(motivo) {
 
 function load() {
   if (isPlaceholder(CSV_URL)) { conRespaldo(""); return; }
-  Papa.parse(CSV_URL, {
+  Papa.parse(CSV_URL + "&t=" + Date.now(), {
     download: true, header: true, skipEmptyLines: true,
     complete: function (res) {
       var rows = (res.data || []).map(function (r) {
@@ -254,10 +254,18 @@ function load() {
       var byJ = {};
       rows.forEach(function (r) { (byJ[r.jornada] = byJ[r.jornada] || []).push(r); });
       var keys = Object.keys(byJ).map(Number).sort(function (a, b) { return a - b; });
-      var pend = null;
-      for (var i = 0; i < keys.length; i++) {
-        if (byJ[keys[i]].filter(function (r) { return r.resultado !== ""; }).length === 0) { pend = keys[i]; break; }
-      }
+
+      /* La próxima por jugar: la jornada MÁS ALTA que todavía tenga algún
+         resultado vacío (así no se salta la que está a medio jugar). Si no
+         queda ninguna con huecos, todas están jugadas: cogemos la más alta
+         de todas. */
+      var conHuecos = keys.filter(function (k) {
+        return byJ[k].some(function (r) { return r.resultado === ""; });
+      });
+      var pend = conHuecos.length ? Math.max.apply(null, conHuecos)
+               : keys.length ? Math.max.apply(null, keys)
+               : null;
+
       if (pend === null) { conRespaldo("La hoja no tiene ninguna jornada pendiente"); return; }
       boot(pend, byJ[pend].slice().sort(function (a, b) { return a.partido - b.partido; }), "");
     },
