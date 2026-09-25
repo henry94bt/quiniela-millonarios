@@ -76,7 +76,14 @@ function capitalizar(nombre) {
 }
 
 function extraerCartel(html) {
-  const nombres = [...html.matchAll(/<div class="bg-name">(.*?)<\/div>/gs)].map((m) =>
+  // La cabecera del boleto dice de qué jornada es el cartel. Hace falta para no
+  // guardar el cartel viejo con el número nuevo: quinielista puede pasar de
+  // jornada antes de que mundodeportivo cambie el boleto.
+  const num = html.match(/class="js-num-jornada">\s*(\d+)\s*</);
+  if (!num) throw new Error("No encontré el número de jornada del cartel. ¿Cambió el HTML?");
+  const jornadaCartel = Number(num[1]);
+
+  const nombres =[...html.matchAll(/<div class="bg-name">(.*?)<\/div>/gs)].map((m) =>
     m[1].replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim()
   );
   // 16 entradas: los 14 de la quiniela + las dos mitades del Pleno al 15.
@@ -96,7 +103,7 @@ function extraerCartel(html) {
           const [l, v] = resto[0].split(/\s+-\s+/);
           return { local: capitalizar(l), visitante: capitalizar(v) };
         })();
-  return { partidos, pleno15 };
+  return { jornadaCartel, partidos, pleno15 };
 }
 
 /* ================== a trabajar ================== */
@@ -115,13 +122,24 @@ console.log(`Jornada en juego según quinielista: J${jornada} (${temporada}).`);
 // El número lo manda quinielista, así que ya no hay que adivinarlo contando
 // carteles: si cambia el par (temporada, jornada), es jornada nueva y punto.
 const esJornadaNueva = !previo || previo.jornada !== jornada || previo.temporada !== temporada;
+// Un cartel sin verificar (o guardado antes de que existiera la comprobación)
+// se vuelve a pedir en cada pasada hasta que mundodeportivo sirva el de esta
+// jornada.
+const cartelVerificado = !esJornadaNueva && previo.cartelJornada === jornada;
 
-if (!esJornadaNueva) {
-  console.log("Sigue siendo la misma jornada: no toco el cartel.");
+const cartel = cartelVerificado
+  ? null
+  : extraerCartel(decodificar(await pedir(URL_CARTEL, "buffer")));
+
+if (cartelVerificado) {
+  console.log("Sigue siendo la misma jornada y el cartel ya es el suyo: no lo toco.");
+} else if (cartel.jornadaCartel !== jornada) {
+  console.log(`mundodeportivo todavía sirve el cartel de la J${cartel.jornadaCartel}, ` +
+              `no el de la J${jornada}: no lo guardo, reintento en la próxima pasada.`);
 } else {
-  const { partidos, pleno15 } = extraerCartel(decodificar(await pedir(URL_CARTEL, "buffer")));
+  const { partidos, pleno15 } = cartel;
 
-  if (previo) {
+  if (previo && esJornadaNueva) {
     const hist = leer(HISTORICO, []);
     const yaEsta = hist.some(
       (h) => h.jornada === previo.jornada && h.temporada === previo.temporada
@@ -150,6 +168,7 @@ if (!esJornadaNueva) {
     _actualizado: new Date().toISOString().slice(0, 10),
     temporada,
     jornada,
+    cartelJornada: cartel.jornadaCartel,
     partidos,
     pleno15,
   });
