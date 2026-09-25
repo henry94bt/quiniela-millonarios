@@ -4,83 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-09-20",
+  "_actualizado": "2026-09-25",
   "temporada": "2026-2027",
   "jornada": 9,
+  "cartelJornada": 9,
   "partidos": [
     {
       "partido": 1,
-      "local": "Osasuna",
-      "visitante": "Rayo"
+      "local": "Ceuta",
+      "visitante": "R.Sociedad B"
     },
     {
       "partido": 2,
-      "local": "Ath.Club",
-      "visitante": "Alavés"
+      "local": "Granada",
+      "visitante": "Andorra FC"
     },
     {
       "partido": 3,
-      "local": "Sevilla",
-      "visitante": "Barcelona"
+      "local": "Celta Fortuna",
+      "visitante": "Sabadell"
     },
     {
       "partido": 4,
-      "local": "Getafe",
-      "visitante": "Málaga"
+      "local": "Tenerife",
+      "visitante": "Cádiz"
     },
     {
       "partido": 5,
-      "local": "Deportivo",
-      "visitante": "Betis"
+      "local": "Valladolid",
+      "visitante": "Córdoba"
     },
     {
       "partido": 6,
-      "local": "Villarreal",
-      "visitante": "Levante"
+      "local": "Mallorca",
+      "visitante": "Almería"
     },
     {
       "partido": 7,
-      "local": "Valencia",
-      "visitante": "R.Sociedad"
+      "local": "Burgos",
+      "visitante": "Eldense"
     },
     {
       "partido": 8,
-      "local": "Andorra FC",
-      "visitante": "Sporting"
+      "local": "Eibar",
+      "visitante": "Las Palmas"
     },
     {
       "partido": 9,
-      "local": "Castellón",
-      "visitante": "Tenerife"
+      "local": "R.Oviedo",
+      "visitante": "Sporting"
     },
     {
       "partido": 10,
       "local": "Leganés",
-      "visitante": "Granada"
+      "visitante": "Castellón"
     },
     {
       "partido": 11,
-      "local": "At.Madrid (f)",
-      "visitante": "Logroño (f)"
+      "local": "Ath.Club (f)",
+      "visitante": "At.Madrid (f)"
     },
     {
       "partido": 12,
-      "local": "Eibar (f)",
-      "visitante": "Ath.Club (f)"
+      "local": "Valencia (f)",
+      "visitante": "Tenerife (f)"
     },
     {
       "partido": 13,
-      "local": "R.Madrid (f)",
-      "visitante": "Valencia (f)"
+      "local": "Sevilla (f)",
+      "visitante": "Eibar (f)"
     },
     {
       "partido": 14,
-      "local": "Tenerife (f)",
-      "visitante": "Sevilla (f)"
+      "local": "Deportivo (f)",
+      "visitante": "Espanyol (f)"
     }
   ],
   "pleno15": {
-    "local": "At.Madrid",
-    "visitante": "R.Madrid"
+    "local": "Inglaterra",
+    "visitante": "España"
   }
 }
