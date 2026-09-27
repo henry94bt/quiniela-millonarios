@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-09-25",
+  "_actualizado": "2026-09-27",
   "temporada": "2026-2027",
-  "jornada": 9,
-  "cartelJornada": 9,
+  "jornada": 10,
+  "cartelJornada": 10,
   "partidos": [
     {
       "partido": 1,
-      "local": "Ceuta",
-      "visitante": "R.Sociedad B"
+      "local": "Luxemburgo",
+      "visitante": "Islandia"
     },
     {
       "partido": 2,
-      "local": "Granada",
-      "visitante": "Andorra FC"
+      "local": "Eslovaquia",
+      "visitante": "Kazajstán"
     },
     {
       "partido": 3,
-      "local": "Celta Fortuna",
-      "visitante": "Sabadell"
+      "local": "Rep.Checa",
+      "visitante": "Inglaterra"
     },
     {
       "partido": 4,
-      "local": "Tenerife",
-      "visitante": "Cádiz"
+      "local": "Eslovenia",
+      "visitante": "Macedonia N."
     },
     {
       "partido": 5,
-      "local": "Valladolid",
-      "visitante": "Córdoba"
+      "local": "Bulgaria",
+      "visitante": "Estonia"
     },
     {
       "partido": 6,
-      "local": "Mallorca",
-      "visitante": "Almería"
+      "local": "San Marino",
+      "visitante": "Albania"
     },
     {
       "partido": 7,
-      "local": "Burgos",
-      "visitante": "Eldense"
+      "local": "Escocia",
+      "visitante": "Suiza"
     },
     {
       "partido": 8,
-      "local": "Eibar",
-      "visitante": "Las Palmas"
+      "local": "Azerbaiyan",
+      "visitante": "Liechtenstein"
     },
     {
       "partido": 9,
-      "local": "R.Oviedo",
-      "visitante": "Sporting"
+      "local": "Grecia",
+      "visitante": "Países Bajos"
     },
     {
       "partido": 10,
-      "local": "Leganés",
-      "visitante": "Castellón"
+      "local": "Alemania",
+      "visitante": "Serbia"
     },
     {
       "partido": 11,
-      "local": "Ath.Club (f)",
-      "visitante": "At.Madrid (f)"
+      "local": "Rep.Irlanda",
+      "visitante": "Austria"
     },
     {
       "partido": 12,
-      "local": "Valencia (f)",
-      "visitante": "Tenerife (f)"
+      "local": "Gales",
+      "visitante": "Noruega"
     },
     {
       "partido": 13,
-      "local": "Sevilla (f)",
-      "visitante": "Eibar (f)"
+      "local": "Malta",
+      "visitante": "Gibraltar"
     },
     {
       "partido": 14,
-      "local": "Deportivo (f)",
-      "visitante": "Espanyol (f)"
+      "local": "Dinamarca",
+      "visitante": "Portugal"
     }
   ],
   "pleno15": {
-    "local": "Inglaterra",
-    "visitante": "España"
+    "local": "España",
+    "visitante": "Croacia"
   }
 }

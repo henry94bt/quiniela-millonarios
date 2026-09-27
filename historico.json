@@ -638,5 +638,85 @@
       "local": "At.Madrid",
       "visitante": "R.Madrid"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 9,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Ceuta",
+        "visitante": "R.Sociedad B"
+      },
+      {
+        "partido": 2,
+        "local": "Granada",
+        "visitante": "Andorra FC"
+      },
+      {
+        "partido": 3,
+        "local": "Celta Fortuna",
+        "visitante": "Sabadell"
+      },
+      {
+        "partido": 4,
+        "local": "Tenerife",
+        "visitante": "Cádiz"
+      },
+      {
+        "partido": 5,
+        "local": "Valladolid",
+        "visitante": "Córdoba"
+      },
+      {
+        "partido": 6,
+        "local": "Mallorca",
+        "visitante": "Almería"
+      },
+      {
+        "partido": 7,
+        "local": "Burgos",
+        "visitante": "Eldense"
+      },
+      {
+        "partido": 8,
+        "local": "Eibar",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 9,
+        "local": "R.Oviedo",
+        "visitante": "Sporting"
+      },
+      {
+        "partido": 10,
+        "local": "Leganés",
+        "visitante": "Castellón"
+      },
+      {
+        "partido": 11,
+        "local": "Ath.Club (f)",
+        "visitante": "At.Madrid (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Valencia (f)",
+        "visitante": "Tenerife (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Sevilla (f)",
+        "visitante": "Eibar (f)"
+      },
+      {
+        "partido": 14,
+        "local": "Deportivo (f)",
+        "visitante": "Espanyol (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Inglaterra",
+      "visitante": "España"
+    }
   }
 ]
