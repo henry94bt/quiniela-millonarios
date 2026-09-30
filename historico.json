@@ -718,5 +718,85 @@
       "local": "Inglaterra",
       "visitante": "España"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 10,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Luxemburgo",
+        "visitante": "Islandia"
+      },
+      {
+        "partido": 2,
+        "local": "Eslovaquia",
+        "visitante": "Kazajstán"
+      },
+      {
+        "partido": 3,
+        "local": "Rep.Checa",
+        "visitante": "Inglaterra"
+      },
+      {
+        "partido": 4,
+        "local": "Eslovenia",
+        "visitante": "Macedonia N."
+      },
+      {
+        "partido": 5,
+        "local": "Bulgaria",
+        "visitante": "Estonia"
+      },
+      {
+        "partido": 6,
+        "local": "San Marino",
+        "visitante": "Albania"
+      },
+      {
+        "partido": 7,
+        "local": "Escocia",
+        "visitante": "Suiza"
+      },
+      {
+        "partido": 8,
+        "local": "Azerbaiyan",
+        "visitante": "Liechtenstein"
+      },
+      {
+        "partido": 9,
+        "local": "Grecia",
+        "visitante": "Países Bajos"
+      },
+      {
+        "partido": 10,
+        "local": "Alemania",
+        "visitante": "Serbia"
+      },
+      {
+        "partido": 11,
+        "local": "Rep.Irlanda",
+        "visitante": "Austria"
+      },
+      {
+        "partido": 12,
+        "local": "Gales",
+        "visitante": "Noruega"
+      },
+      {
+        "partido": 13,
+        "local": "Malta",
+        "visitante": "Gibraltar"
+      },
+      {
+        "partido": 14,
+        "local": "Dinamarca",
+        "visitante": "Portugal"
+      }
+    ],
+    "pleno15": {
+      "local": "España",
+      "visitante": "Croacia"
+    }
   }
 ]
