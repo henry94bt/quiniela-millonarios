@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-10-04",
+  "_actualizado": "2026-10-11",
   "temporada": "2026-2027",
-  "jornada": 12,
-  "cartelJornada": 12,
+  "jornada": 13,
+  "cartelJornada": 13,
   "partidos": [
     {
       "partido": 1,
-      "local": "Rayo",
-      "visitante": "Ath.Club"
+      "local": "Villarreal",
+      "visitante": "Napoli"
     },
     {
       "partido": 2,
-      "local": "Alavés",
-      "visitante": "At.Madrid"
+      "local": "At.Madrid",
+      "visitante": "Man.United"
     },
     {
       "partido": 3,
-      "local": "Barcelona",
-      "visitante": "Getafe"
+      "local": "Arsenal",
+      "visitante": "Losc Lille"
     },
     {
       "partido": 4,
-      "local": "Elche",
-      "visitante": "Celta"
+      "local": "Galatasaray",
+      "visitante": "Barcelona"
     },
     {
       "partido": 5,
-      "local": "R.Sociedad",
-      "visitante": "Deportivo"
+      "local": "Inter",
+      "visitante": "Brujas"
     },
     {
       "partido": 6,
-      "local": "Betis",
-      "visitante": "Osasuna"
+      "local": "Viking",
+      "visitante": "B.Munich"
     },
     {
       "partido": 7,
-      "local": "Racing S.",
-      "visitante": "Valencia"
+      "local": "Feyenoord",
+      "visitante": "Como 1907"
     },
     {
       "partido": 8,
-      "local": "Levante",
-      "visitante": "Sevilla"
+      "local": "Lask Linz",
+      "visitante": "Liverpool"
     },
     {
       "partido": 9,
-      "local": "Eldense",
-      "visitante": "Córdoba"
+      "local": "Betis",
+      "visitante": "Oporto"
     },
     {
       "partido": 10,
-      "local": "Andorra FC",
-      "visitante": "Castellón"
+      "local": "Bodo Glimt",
+      "visitante": "B.Dortmund"
     },
     {
       "partido": 11,
-      "local": "Almería",
-      "visitante": "Leganés"
+      "local": "Man.City",
+      "visitante": "Psg"
     },
     {
       "partido": 12,
-      "local": "Mallorca",
-      "visitante": "Las Palmas"
+      "local": "R. Union Sg",
+      "visitante": "R.Sociedad"
     },
     {
       "partido": 13,
-      "local": "Burgos",
-      "visitante": "Granada"
+      "local": "Celta",
+      "visitante": "Juventus"
     },
     {
       "partido": 14,
-      "local": "R.Oviedo",
-      "visitante": "Eibar"
+      "local": "U. Craiova",
+      "visitante": "Getafe"
     }
   ],
   "pleno15": {
-    "local": "R.Madrid",
-    "visitante": "Villarreal"
+    "local": "Roma",
+    "visitante": "R.Madrid"
   }
 }

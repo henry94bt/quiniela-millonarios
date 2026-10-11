@@ -878,5 +878,85 @@
       "local": "España",
       "visitante": "Rep.Checa"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 12,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Rayo",
+        "visitante": "Ath.Club"
+      },
+      {
+        "partido": 2,
+        "local": "Alavés",
+        "visitante": "At.Madrid"
+      },
+      {
+        "partido": 3,
+        "local": "Barcelona",
+        "visitante": "Getafe"
+      },
+      {
+        "partido": 4,
+        "local": "Elche",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 5,
+        "local": "R.Sociedad",
+        "visitante": "Deportivo"
+      },
+      {
+        "partido": 6,
+        "local": "Betis",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 7,
+        "local": "Racing S.",
+        "visitante": "Valencia"
+      },
+      {
+        "partido": 8,
+        "local": "Levante",
+        "visitante": "Sevilla"
+      },
+      {
+        "partido": 9,
+        "local": "Eldense",
+        "visitante": "Córdoba"
+      },
+      {
+        "partido": 10,
+        "local": "Andorra FC",
+        "visitante": "Castellón"
+      },
+      {
+        "partido": 11,
+        "local": "Almería",
+        "visitante": "Leganés"
+      },
+      {
+        "partido": 12,
+        "local": "Mallorca",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 13,
+        "local": "Burgos",
+        "visitante": "Granada"
+      },
+      {
+        "partido": 14,
+        "local": "R.Oviedo",
+        "visitante": "Eibar"
+      }
+    ],
+    "pleno15": {
+      "local": "R.Madrid",
+      "visitante": "Villarreal"
+    }
   }
 ]
