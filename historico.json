@@ -958,5 +958,85 @@
       "local": "R.Madrid",
       "visitante": "Villarreal"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 13,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Villarreal",
+        "visitante": "Napoli"
+      },
+      {
+        "partido": 2,
+        "local": "At.Madrid",
+        "visitante": "Man.United"
+      },
+      {
+        "partido": 3,
+        "local": "Arsenal",
+        "visitante": "Losc Lille"
+      },
+      {
+        "partido": 4,
+        "local": "Galatasaray",
+        "visitante": "Barcelona"
+      },
+      {
+        "partido": 5,
+        "local": "Inter",
+        "visitante": "Brujas"
+      },
+      {
+        "partido": 6,
+        "local": "Viking",
+        "visitante": "B.Munich"
+      },
+      {
+        "partido": 7,
+        "local": "Feyenoord",
+        "visitante": "Como 1907"
+      },
+      {
+        "partido": 8,
+        "local": "Lask Linz",
+        "visitante": "Liverpool"
+      },
+      {
+        "partido": 9,
+        "local": "Betis",
+        "visitante": "Oporto"
+      },
+      {
+        "partido": 10,
+        "local": "Bodo Glimt",
+        "visitante": "B.Dortmund"
+      },
+      {
+        "partido": 11,
+        "local": "Man.City",
+        "visitante": "Psg"
+      },
+      {
+        "partido": 12,
+        "local": "R. Union Sg",
+        "visitante": "R.Sociedad"
+      },
+      {
+        "partido": 13,
+        "local": "Celta",
+        "visitante": "Juventus"
+      },
+      {
+        "partido": 14,
+        "local": "U. Craiova",
+        "visitante": "Getafe"
+      }
+    ],
+    "pleno15": {
+      "local": "Roma",
+      "visitante": "R.Madrid"
+    }
   }
 ]

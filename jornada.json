@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-10-11",
+  "_actualizado": "2026-10-14",
   "temporada": "2026-2027",
-  "jornada": 13,
-  "cartelJornada": 13,
+  "jornada": 14,
+  "cartelJornada": 14,
   "partidos": [
     {
       "partido": 1,
-      "local": "Villarreal",
-      "visitante": "Napoli"
+      "local": "Espanyol",
+      "visitante": "At.Madrid"
     },
     {
       "partido": 2,
-      "local": "At.Madrid",
-      "visitante": "Man.United"
+      "local": "Villarreal",
+      "visitante": "Elche"
     },
     {
       "partido": 3,
-      "local": "Arsenal",
-      "visitante": "Losc Lille"
-    },
-    {
-      "partido": 4,
-      "local": "Galatasaray",
+      "local": "Betis",
       "visitante": "Barcelona"
     },
     {
+      "partido": 4,
+      "local": "Valencia",
+      "visitante": "Ath.Club"
+    },
+    {
       "partido": 5,
-      "local": "Inter",
-      "visitante": "Brujas"
+      "local": "Celta",
+      "visitante": "Alavés"
     },
     {
       "partido": 6,
-      "local": "Viking",
-      "visitante": "B.Munich"
-    },
-    {
-      "partido": 7,
-      "local": "Feyenoord",
-      "visitante": "Como 1907"
-    },
-    {
-      "partido": 8,
-      "local": "Lask Linz",
-      "visitante": "Liverpool"
-    },
-    {
-      "partido": 9,
-      "local": "Betis",
-      "visitante": "Oporto"
-    },
-    {
-      "partido": 10,
-      "local": "Bodo Glimt",
-      "visitante": "B.Dortmund"
-    },
-    {
-      "partido": 11,
-      "local": "Man.City",
-      "visitante": "Psg"
-    },
-    {
-      "partido": 12,
-      "local": "R. Union Sg",
+      "local": "Málaga",
       "visitante": "R.Sociedad"
     },
     {
+      "partido": 7,
+      "local": "R.Madrid",
+      "visitante": "Sevilla"
+    },
+    {
+      "partido": 8,
+      "local": "Eibar",
+      "visitante": "Mallorca"
+    },
+    {
+      "partido": 9,
+      "local": "Las Palmas",
+      "visitante": "Castellón"
+    },
+    {
+      "partido": 10,
+      "local": "Burgos",
+      "visitante": "Sabadell"
+    },
+    {
+      "partido": 11,
+      "local": "Ath.Club (f)",
+      "visitante": "Valencia (f)"
+    },
+    {
+      "partido": 12,
+      "local": "R.Madrid (f)",
+      "visitante": "Espanyol (f)"
+    },
+    {
       "partido": 13,
-      "local": "Celta",
-      "visitante": "Juventus"
+      "local": "Eibar (f)",
+      "visitante": "Deportivo (f)"
     },
     {
       "partido": 14,
-      "local": "U. Craiova",
-      "visitante": "Getafe"
+      "local": "At.Madrid (f)",
+      "visitante": "Madrid Cff (f)"
     }
   ],
   "pleno15": {
-    "local": "Roma",
-    "visitante": "R.Madrid"
+    "local": "Getafe",
+    "visitante": "Rayo"
   }
 }
