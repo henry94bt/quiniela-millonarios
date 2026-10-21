@@ -1118,5 +1118,85 @@
       "local": "Getafe",
       "visitante": "Rayo"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 15,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Oporto",
+        "visitante": "Psv"
+      },
+      {
+        "partido": 2,
+        "local": "Liverpool",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 3,
+        "local": "Man.City",
+        "visitante": "Aek Atenas"
+      },
+      {
+        "partido": 4,
+        "local": "Napoli",
+        "visitante": "Bodo Glimt"
+      },
+      {
+        "partido": 5,
+        "local": "Stuttgart",
+        "visitante": "At.Madrid"
+      },
+      {
+        "partido": 6,
+        "local": "Como 1907",
+        "visitante": "Man.United"
+      },
+      {
+        "partido": 7,
+        "local": "B.Munich",
+        "visitante": "Arsenal"
+      },
+      {
+        "partido": 8,
+        "local": "Brujas",
+        "visitante": "Lens"
+      },
+      {
+        "partido": 9,
+        "local": "Inter",
+        "visitante": "Shakhtar Donetsk"
+      },
+      {
+        "partido": 10,
+        "local": "Betis",
+        "visitante": "Feyenoord"
+      },
+      {
+        "partido": 11,
+        "local": "R.Madrid",
+        "visitante": "Rb Leipzig"
+      },
+      {
+        "partido": 12,
+        "local": "Celtic",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 13,
+        "local": "Lillestrom",
+        "visitante": "R.Sociedad"
+      },
+      {
+        "partido": 14,
+        "local": "Getafe",
+        "visitante": "Lugano"
+      }
+    ],
+    "pleno15": {
+      "local": "Psg",
+      "visitante": "Barcelona"
+    }
   }
 ]
