@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-10-21",
+  "_actualizado": "2026-10-25",
   "temporada": "2026-2027",
-  "jornada": 16,
-  "cartelJornada": 16,
+  "jornada": 17,
+  "cartelJornada": 17,
   "partidos": [
     {
       "partido": 1,
-      "local": "Rayo",
-      "visitante": "Elche"
+      "local": "Rsd.Alcala",
+      "visitante": "Las Palmas"
     },
     {
       "partido": 2,
-      "local": "Valencia",
-      "visitante": "Villarreal"
-    },
-    {
-      "partido": 3,
-      "local": "At.Madrid",
-      "visitante": "Deportivo"
-    },
-    {
-      "partido": 4,
-      "local": "Ath.Club",
-      "visitante": "Getafe"
-    },
-    {
-      "partido": 5,
-      "local": "Celta",
-      "visitante": "Betis"
-    },
-    {
-      "partido": 6,
-      "local": "R.Sociedad",
-      "visitante": "Levante"
-    },
-    {
-      "partido": 7,
-      "local": "Sevilla",
-      "visitante": "Osasuna"
-    },
-    {
-      "partido": 8,
-      "local": "Leganés",
+      "local": "Alcoyano",
       "visitante": "Mallorca"
     },
     {
-      "partido": 9,
-      "local": "Almería",
-      "visitante": "R.Oviedo"
+      "partido": 3,
+      "local": "Arosa Sc",
+      "visitante": "Pontevedra"
     },
     {
-      "partido": 10,
-      "local": "Sabadell",
+      "partido": 4,
+      "local": "At.Calatayud",
+      "visitante": "Osasuna"
+    },
+    {
+      "partido": 5,
+      "local": "Badajoz",
       "visitante": "Tenerife"
     },
     {
+      "partido": 6,
+      "local": "CD Cieza",
+      "visitante": "Granada"
+    },
+    {
+      "partido": 7,
+      "local": "Conquense",
+      "visitante": "Castellón"
+    },
+    {
+      "partido": 8,
+      "local": "CD Covadonga",
+      "visitante": "Valladolid"
+    },
+    {
+      "partido": 9,
+      "local": "CD Minera",
+      "visitante": "Cartagena"
+    },
+    {
+      "partido": 10,
+      "local": "Don Benito",
+      "visitante": "Extremadura"
+    },
+    {
       "partido": 11,
-      "local": "Logroño (f)",
-      "visitante": "Badalona W.(f)"
+      "local": "CD Laredo",
+      "visitante": "Burgos"
     },
     {
       "partido": 12,
-      "local": "Deportivo (f)",
-      "visitante": "Alavés (f)"
+      "local": "Numancia",
+      "visitante": "R.Oviedo"
     },
     {
       "partido": 13,
-      "local": "Eibar (f)",
-      "visitante": "Madrid Cff (f)"
+      "local": "CD Tudelano",
+      "visitante": "R.Zaragoza"
     },
     {
       "partido": 14,
-      "local": "R.Madrid (f)",
-      "visitante": "Tenerife (f)"
+      "local": "Xerez",
+      "visitante": "Cádiz"
     }
   ],
   "pleno15": {
-    "local": "Barcelona",
-    "visitante": "R.Madrid"
+    "local": "Rec.Huelva",
+    "visitante": "Rayo"
   }
 }

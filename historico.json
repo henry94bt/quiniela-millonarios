@@ -1198,5 +1198,85 @@
       "local": "Psg",
       "visitante": "Barcelona"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 16,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Rayo",
+        "visitante": "Elche"
+      },
+      {
+        "partido": 2,
+        "local": "Valencia",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 3,
+        "local": "At.Madrid",
+        "visitante": "Deportivo"
+      },
+      {
+        "partido": 4,
+        "local": "Ath.Club",
+        "visitante": "Getafe"
+      },
+      {
+        "partido": 5,
+        "local": "Celta",
+        "visitante": "Betis"
+      },
+      {
+        "partido": 6,
+        "local": "R.Sociedad",
+        "visitante": "Levante"
+      },
+      {
+        "partido": 7,
+        "local": "Sevilla",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 8,
+        "local": "Leganés",
+        "visitante": "Mallorca"
+      },
+      {
+        "partido": 9,
+        "local": "Almería",
+        "visitante": "R.Oviedo"
+      },
+      {
+        "partido": 10,
+        "local": "Sabadell",
+        "visitante": "Tenerife"
+      },
+      {
+        "partido": 11,
+        "local": "Logroño (f)",
+        "visitante": "Badalona W.(f)"
+      },
+      {
+        "partido": 12,
+        "local": "Deportivo (f)",
+        "visitante": "Alavés (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Eibar (f)",
+        "visitante": "Madrid Cff (f)"
+      },
+      {
+        "partido": 14,
+        "local": "R.Madrid (f)",
+        "visitante": "Tenerife (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Barcelona",
+      "visitante": "R.Madrid"
+    }
   }
 ]
