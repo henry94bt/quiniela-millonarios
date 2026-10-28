@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-10-25",
+  "_actualizado": "2026-10-28",
   "temporada": "2026-2027",
-  "jornada": 17,
-  "cartelJornada": 17,
+  "jornada": 18,
+  "cartelJornada": 18,
   "partidos": [
     {
       "partido": 1,
-      "local": "Rsd.Alcala",
-      "visitante": "Las Palmas"
+      "local": "Levante",
+      "visitante": "At.Madrid"
     },
     {
       "partido": 2,
-      "local": "Alcoyano",
-      "visitante": "Mallorca"
+      "local": "Rayo",
+      "visitante": "Celta"
     },
     {
       "partido": 3,
-      "local": "Arosa Sc",
-      "visitante": "Pontevedra"
+      "local": "Betis",
+      "visitante": "Málaga"
     },
     {
       "partido": 4,
-      "local": "At.Calatayud",
-      "visitante": "Osasuna"
+      "local": "Barcelona",
+      "visitante": "Alavés"
     },
     {
       "partido": 5,
-      "local": "Badajoz",
-      "visitante": "Tenerife"
+      "local": "Getafe",
+      "visitante": "Sevilla"
     },
     {
       "partido": 6,
-      "local": "CD Cieza",
-      "visitante": "Granada"
+      "local": "Racing S.",
+      "visitante": "R.Madrid"
     },
     {
       "partido": 7,
-      "local": "Conquense",
-      "visitante": "Castellón"
+      "local": "Elche",
+      "visitante": "Valencia"
     },
     {
       "partido": 8,
-      "local": "CD Covadonga",
-      "visitante": "Valladolid"
+      "local": "Eibar",
+      "visitante": "Almería"
     },
     {
       "partido": 9,
-      "local": "CD Minera",
-      "visitante": "Cartagena"
+      "local": "Eldense",
+      "visitante": "Granada"
     },
     {
       "partido": 10,
-      "local": "Don Benito",
-      "visitante": "Extremadura"
+      "local": "Burgos",
+      "visitante": "Castellón"
     },
     {
       "partido": 11,
-      "local": "CD Laredo",
-      "visitante": "Burgos"
+      "local": "Alavés (f)",
+      "visitante": "R.Sociedad (f)"
     },
     {
       "partido": 12,
-      "local": "Numancia",
-      "visitante": "R.Oviedo"
+      "local": "Madrid Cff (f)",
+      "visitante": "Deportivo (f)"
     },
     {
       "partido": 13,
-      "local": "CD Tudelano",
-      "visitante": "R.Zaragoza"
+      "local": "Sevilla (f)",
+      "visitante": "R.Madrid (f)"
     },
     {
       "partido": 14,
-      "local": "Xerez",
-      "visitante": "Cádiz"
+      "local": "Tenerife (f)",
+      "visitante": "Ath.Club (f)"
     }
   ],
   "pleno15": {
-    "local": "Rec.Huelva",
-    "visitante": "Rayo"
+    "local": "Ath.Club",
+    "visitante": "R.Sociedad"
   }
 }

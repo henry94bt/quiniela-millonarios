@@ -1278,5 +1278,85 @@
       "local": "Barcelona",
       "visitante": "R.Madrid"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 17,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Rsd.Alcala",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 2,
+        "local": "Alcoyano",
+        "visitante": "Mallorca"
+      },
+      {
+        "partido": 3,
+        "local": "Arosa Sc",
+        "visitante": "Pontevedra"
+      },
+      {
+        "partido": 4,
+        "local": "At.Calatayud",
+        "visitante": "Osasuna"
+      },
+      {
+        "partido": 5,
+        "local": "Badajoz",
+        "visitante": "Tenerife"
+      },
+      {
+        "partido": 6,
+        "local": "CD Cieza",
+        "visitante": "Granada"
+      },
+      {
+        "partido": 7,
+        "local": "Conquense",
+        "visitante": "Castellón"
+      },
+      {
+        "partido": 8,
+        "local": "CD Covadonga",
+        "visitante": "Valladolid"
+      },
+      {
+        "partido": 9,
+        "local": "CD Minera",
+        "visitante": "Cartagena"
+      },
+      {
+        "partido": 10,
+        "local": "Don Benito",
+        "visitante": "Extremadura"
+      },
+      {
+        "partido": 11,
+        "local": "CD Laredo",
+        "visitante": "Burgos"
+      },
+      {
+        "partido": 12,
+        "local": "Numancia",
+        "visitante": "R.Oviedo"
+      },
+      {
+        "partido": 13,
+        "local": "CD Tudelano",
+        "visitante": "R.Zaragoza"
+      },
+      {
+        "partido": 14,
+        "local": "Xerez",
+        "visitante": "Cádiz"
+      }
+    ],
+    "pleno15": {
+      "local": "Rec.Huelva",
+      "visitante": "Rayo"
+    }
   }
 ]
