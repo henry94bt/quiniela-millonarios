@@ -1358,5 +1358,85 @@
       "local": "Rec.Huelva",
       "visitante": "Rayo"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 18,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Levante",
+        "visitante": "At.Madrid"
+      },
+      {
+        "partido": 2,
+        "local": "Rayo",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 3,
+        "local": "Betis",
+        "visitante": "Málaga"
+      },
+      {
+        "partido": 4,
+        "local": "Barcelona",
+        "visitante": "Alavés"
+      },
+      {
+        "partido": 5,
+        "local": "Getafe",
+        "visitante": "Sevilla"
+      },
+      {
+        "partido": 6,
+        "local": "Racing S.",
+        "visitante": "R.Madrid"
+      },
+      {
+        "partido": 7,
+        "local": "Elche",
+        "visitante": "Valencia"
+      },
+      {
+        "partido": 8,
+        "local": "Eibar",
+        "visitante": "Almería"
+      },
+      {
+        "partido": 9,
+        "local": "Eldense",
+        "visitante": "Granada"
+      },
+      {
+        "partido": 10,
+        "local": "Burgos",
+        "visitante": "Castellón"
+      },
+      {
+        "partido": 11,
+        "local": "Alavés (f)",
+        "visitante": "R.Sociedad (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Madrid Cff (f)",
+        "visitante": "Deportivo (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Sevilla (f)",
+        "visitante": "R.Madrid (f)"
+      },
+      {
+        "partido": 14,
+        "local": "Tenerife (f)",
+        "visitante": "Ath.Club (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Ath.Club",
+      "visitante": "R.Sociedad"
+    }
   }
 ]
