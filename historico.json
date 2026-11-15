@@ -1598,5 +1598,85 @@
       "local": "At.Madrid",
       "visitante": "Barcelona"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 21,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Valladolid",
+        "visitante": "Castellón"
+      },
+      {
+        "partido": 2,
+        "local": "R.Sociedad B",
+        "visitante": "Sporting"
+      },
+      {
+        "partido": 3,
+        "local": "Almería",
+        "visitante": "Andorra FC"
+      },
+      {
+        "partido": 4,
+        "local": "Mallorca",
+        "visitante": "Córdoba"
+      },
+      {
+        "partido": 5,
+        "local": "R.Oviedo",
+        "visitante": "Girona"
+      },
+      {
+        "partido": 6,
+        "local": "Tenerife",
+        "visitante": "Ceuta"
+      },
+      {
+        "partido": 7,
+        "local": "Granada",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 8,
+        "local": "Eibar",
+        "visitante": "Cádiz"
+      },
+      {
+        "partido": 9,
+        "local": "Eldense",
+        "visitante": "Sabadell"
+      },
+      {
+        "partido": 10,
+        "local": "Bélgica",
+        "visitante": "Italia"
+      },
+      {
+        "partido": 11,
+        "local": "Alavés (f)",
+        "visitante": "Eibar (f)"
+      },
+      {
+        "partido": 12,
+        "local": "R.Sociedad (f)",
+        "visitante": "Ath.Club (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Sevilla (f)",
+        "visitante": "At.Madrid (f)"
+      },
+      {
+        "partido": 14,
+        "local": "Valencia (f)",
+        "visitante": "Granada (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "España",
+      "visitante": "Inglaterra"
+    }
   }
 ]
