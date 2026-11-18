@@ -4,84 +4,84 @@
     "jornada": "https://static.quinielista.es/quinielista/jornada_quiniela.json",
     "cartel": "https://www.mundodeportivo.com/servicios/quiniela"
   },
-  "_actualizado": "2026-11-15",
+  "_actualizado": "2026-11-18",
   "temporada": "2026-2027",
-  "jornada": 22,
-  "cartelJornada": 22,
+  "jornada": 23,
+  "cartelJornada": 23,
   "partidos": [
     {
       "partido": 1,
-      "local": "Bosnia Herzegovina",
-      "visitante": "Rumanía"
+      "local": "Alavés",
+      "visitante": "Deportivo"
     },
     {
       "partido": 2,
-      "local": "Ucrania",
-      "visitante": "Georgia"
+      "local": "Rayo",
+      "visitante": "Valencia"
     },
     {
       "partido": 3,
-      "local": "Gales",
-      "visitante": "Portugal"
+      "local": "R.Madrid",
+      "visitante": "Celta"
     },
     {
       "partido": 4,
-      "local": "Hungría",
-      "visitante": "Irlanda N."
+      "local": "Barcelona",
+      "visitante": "Villarreal"
     },
     {
       "partido": 5,
-      "local": "Polonia",
-      "visitante": "Suecia"
+      "local": "Racing S.",
+      "visitante": "R.Sociedad"
     },
     {
       "partido": 6,
-      "local": "Rep.Irlanda",
-      "visitante": "Kosovo"
+      "local": "Osasuna",
+      "visitante": "Málaga"
     },
     {
       "partido": 7,
-      "local": "R.Madrid (f)",
-      "visitante": "Inter (f)"
+      "local": "Getafe",
+      "visitante": "At.Madrid"
     },
     {
       "partido": 8,
-      "local": "Bk Hacken (f)",
-      "visitante": "Man.City (f)"
+      "local": "Tenerife",
+      "visitante": "Mallorca"
     },
     {
       "partido": 9,
-      "local": "Chelsea (f)",
-      "visitante": "Psg (f)"
+      "local": "Sporting",
+      "visitante": "Las Palmas"
     },
     {
       "partido": 10,
-      "local": "Juventus (f)",
-      "visitante": "Leuven (f)"
+      "local": "Girona",
+      "visitante": "Eibar"
     },
     {
       "partido": 11,
-      "local": "Austria Wien (f)",
-      "visitante": "B.Munich (f)"
+      "local": "Eibar (f)",
+      "visitante": "At.Madrid (f)"
     },
     {
       "partido": 12,
-      "local": "Arsenal (f)",
-      "visitante": "Ol. Lyonnes (f)"
+      "local": "Granada (f)",
+      "visitante": "R.Madrid (f)"
     },
     {
       "partido": 13,
-      "local": "Barcelona (f)",
-      "visitante": "Servette (f)"
+      "local": "R.Sociedad (f)",
+      "visitante": "Sevilla (f)"
     },
     {
       "partido": 14,
-      "local": "Benfica (f)",
-      "visitante": "Roma (f)"
+      "local": "Tenerife (f)",
+      "visitante": "Madrid Cff (f)"
     }
   ],
   "pleno15": {
-    "local": "Dinamarca",
-    "visitante": "Noruega"
+    "local": "Sevilla",
+    "visitante": "Betis"
   }
 }

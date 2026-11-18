@@ -1678,5 +1678,85 @@
       "local": "España",
       "visitante": "Inglaterra"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 22,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Bosnia Herzegovina",
+        "visitante": "Rumanía"
+      },
+      {
+        "partido": 2,
+        "local": "Ucrania",
+        "visitante": "Georgia"
+      },
+      {
+        "partido": 3,
+        "local": "Gales",
+        "visitante": "Portugal"
+      },
+      {
+        "partido": 4,
+        "local": "Hungría",
+        "visitante": "Irlanda N."
+      },
+      {
+        "partido": 5,
+        "local": "Polonia",
+        "visitante": "Suecia"
+      },
+      {
+        "partido": 6,
+        "local": "Rep.Irlanda",
+        "visitante": "Kosovo"
+      },
+      {
+        "partido": 7,
+        "local": "R.Madrid (f)",
+        "visitante": "Inter (f)"
+      },
+      {
+        "partido": 8,
+        "local": "Bk Hacken (f)",
+        "visitante": "Man.City (f)"
+      },
+      {
+        "partido": 9,
+        "local": "Chelsea (f)",
+        "visitante": "Psg (f)"
+      },
+      {
+        "partido": 10,
+        "local": "Juventus (f)",
+        "visitante": "Leuven (f)"
+      },
+      {
+        "partido": 11,
+        "local": "Austria Wien (f)",
+        "visitante": "B.Munich (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Arsenal (f)",
+        "visitante": "Ol. Lyonnes (f)"
+      },
+      {
+        "partido": 13,
+        "local": "Barcelona (f)",
+        "visitante": "Servette (f)"
+      },
+      {
+        "partido": 14,
+        "local": "Benfica (f)",
+        "visitante": "Roma (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Dinamarca",
+      "visitante": "Noruega"
+    }
   }
 ]
