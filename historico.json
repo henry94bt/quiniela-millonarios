@@ -1758,5 +1758,85 @@
       "local": "Dinamarca",
       "visitante": "Noruega"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 23,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Alavés",
+        "visitante": "Deportivo"
+      },
+      {
+        "partido": 2,
+        "local": "Rayo",
+        "visitante": "Valencia"
+      },
+      {
+        "partido": 3,
+        "local": "R.Madrid",
+        "visitante": "Celta"
+      },
+      {
+        "partido": 4,
+        "local": "Barcelona",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 5,
+        "local": "Racing S.",
+        "visitante": "R.Sociedad"
+      },
+      {
+        "partido": 6,
+        "local": "Osasuna",
+        "visitante": "Málaga"
+      },
+      {
+        "partido": 7,
+        "local": "Getafe",
+        "visitante": "At.Madrid"
+      },
+      {
+        "partido": 8,
+        "local": "Tenerife",
+        "visitante": "Mallorca"
+      },
+      {
+        "partido": 9,
+        "local": "Sporting",
+        "visitante": "Las Palmas"
+      },
+      {
+        "partido": 10,
+        "local": "Girona",
+        "visitante": "Eibar"
+      },
+      {
+        "partido": 11,
+        "local": "Eibar (f)",
+        "visitante": "At.Madrid (f)"
+      },
+      {
+        "partido": 12,
+        "local": "Granada (f)",
+        "visitante": "R.Madrid (f)"
+      },
+      {
+        "partido": 13,
+        "local": "R.Sociedad (f)",
+        "visitante": "Sevilla (f)"
+      },
+      {
+        "partido": 14,
+        "local": "Tenerife (f)",
+        "visitante": "Madrid Cff (f)"
+      }
+    ],
+    "pleno15": {
+      "local": "Sevilla",
+      "visitante": "Betis"
+    }
   }
 ]
