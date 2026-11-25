@@ -1838,5 +1838,85 @@
       "local": "Sevilla",
       "visitante": "Betis"
     }
+  },
+  {
+    "temporada": "2026-2027",
+    "jornada": 24,
+    "partidos": [
+      {
+        "partido": 1,
+        "local": "Arsenal",
+        "visitante": "B.Dortmund"
+      },
+      {
+        "partido": 2,
+        "local": "Feyenoord",
+        "visitante": "Oporto"
+      },
+      {
+        "partido": 3,
+        "local": "Man.City",
+        "visitante": "Napoli"
+      },
+      {
+        "partido": 4,
+        "local": "R.Madrid",
+        "visitante": "Psv"
+      },
+      {
+        "partido": 5,
+        "local": "Slovan Bratislava",
+        "visitante": "Betis"
+      },
+      {
+        "partido": 6,
+        "local": "Sabah",
+        "visitante": "Barcelona"
+      },
+      {
+        "partido": 7,
+        "local": "Slavia Praga",
+        "visitante": "Villarreal"
+      },
+      {
+        "partido": 8,
+        "local": "Brujas",
+        "visitante": "Liverpool"
+      },
+      {
+        "partido": 9,
+        "local": "Inter",
+        "visitante": "Stuttgart"
+      },
+      {
+        "partido": 10,
+        "local": "Psg",
+        "visitante": "Roma"
+      },
+      {
+        "partido": 11,
+        "local": "Shakhtar Donetsk",
+        "visitante": "Fenerbahce"
+      },
+      {
+        "partido": 12,
+        "local": "Sporting Port.",
+        "visitante": "Man.United"
+      },
+      {
+        "partido": 13,
+        "local": "Celta",
+        "visitante": "Bournemouth"
+      },
+      {
+        "partido": 14,
+        "local": "Crystal Palace",
+        "visitante": "R.Sociedad"
+      }
+    ],
+    "pleno15": {
+      "local": "At.Madrid",
+      "visitante": "Viking"
+    }
   }
 ]
